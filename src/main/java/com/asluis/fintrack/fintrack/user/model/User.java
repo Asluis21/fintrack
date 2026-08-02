@@ -11,10 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-@Setter
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(
     name = "users", 
@@ -25,7 +27,14 @@ import lombok.Setter;
 )
 @Entity
 public class User {
-    
+
+    public User(String emailEncrypted, String emailLookupHash, String passwordHash, Role role) {
+        this.emailEncrypted = emailEncrypted;
+        this.emailLookupHash = emailLookupHash;
+        this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,4 +58,25 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Status status = Status.ACTIVE;
+
+
+    protected void setEmailEncrypted(String emailEncrypted) {
+        this.emailEncrypted = emailEncrypted;
+    }
+
+    protected void setEmailLookupHash(String emailLookupHash) {
+        this.emailLookupHash = emailLookupHash;
+    }
+
+    protected void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    protected void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }    
 }

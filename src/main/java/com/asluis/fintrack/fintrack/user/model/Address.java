@@ -11,23 +11,32 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Table(
     name = "addresses", 
     schema = "user_domain", 
     uniqueConstraints = {
         @UniqueConstraint(
-            name="uk_address_personal_data", 
-            columnNames = "personal_data_id"
+            name="uk_address_user", 
+            columnNames = "user_id"
         )
     })
 @Entity
 public class Address {
     
+    public Address(String street, String city, String postalCode, Country country, User user) {
+        this.street = street;
+        this.city = city;
+        this.postalCode = postalCode;
+        this.country = country;
+        this.user = user;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -51,9 +60,25 @@ public class Address {
 
     @OneToOne
     @JoinColumn(
-        name = "personal_data_id",
+        name = "user_id",
         nullable=false,
-        foreignKey = @ForeignKey(name="fk_address_personal_data")
+        foreignKey = @ForeignKey(name="fk_address_user")
     )
-    private PersonalData personalData;
+    private User user;
+
+    protected void setStreet(String street) {
+        this.street = street;
+    }
+
+    protected void setCity(String city) {
+        this.city = city;
+    }
+
+    protected void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    protected void setCountry(Country country) {
+        this.country = country;
+    }
 }

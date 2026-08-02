@@ -7,8 +7,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
 @Table(
@@ -20,7 +23,12 @@ import lombok.Getter;
     }
 )
 public class Country {
-    
+
+    public Country(String name, String isoCode) {
+        this.name = name;
+        this.isoCode = isoCode;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,7 +36,16 @@ public class Country {
     @Column(length = 100, nullable = false)
     private String name;
 
-    // ISO 3188 -1 alpha-3
+    // ISO 3166-1 alpha-3 standard EG. CAN, USA, FRA
     @Column(length = 3, nullable = false)
     private String isoCode;
+
+    
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    protected void setIsoCode(String isoCode) {
+        this.isoCode = isoCode;
+    }
 }
