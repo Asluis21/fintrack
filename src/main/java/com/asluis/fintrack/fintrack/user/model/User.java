@@ -78,5 +78,24 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
-    }    
+    }
+
+    
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User other)) {
+            return false;
+        }
+        return id != null && id.equals(other.id);
+    }
+
+    
 }

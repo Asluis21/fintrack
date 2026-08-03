@@ -2,19 +2,22 @@ package com.asluis.fintrack.fintrack.account.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.Currency;
 
+import com.asluis.fintrack.fintrack.common.models.Currency;
 import com.asluis.fintrack.fintrack.user.model.User;
 
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
@@ -29,8 +32,7 @@ import lombok.NoArgsConstructor;
     name = "accounts",
     schema = "account_domain",
     uniqueConstraints = {
-        @UniqueConstraint(name="uk_account_account_number_hash", columnNames = "account_number_hash"),
-        @UniqueConstraint(name="uk_account_user", columnNames = "user_id")
+        @UniqueConstraint(name="uk_account_account_number_hash", columnNames = "account_number_hash")
     },
     check = {
         @CheckConstraint(name="chk_account_balance", constraint = "balance >= 0")
@@ -70,23 +72,31 @@ public class Account {
     private Long version;
 
     @Column(nullable = false)
-    private BigDecimal balance = BigDecimal.ONE;
+    private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(
         name = "currency_id",
-        nullable = false
+        nullable = false,
+        foreignKey = @ForeignKey(name="fk_account_currency")
     )
     private Currency currency;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private OffsetDateTime createdAt = OffsetDateTime.now();
-
+    
+    @Enumerated(EnumType.STRING)
     @Column(name = "account_type", length = 20, nullable = false)
     private AccountType accountType;
-
+    
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private Status status = Status.ACTIVE;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @PrePersist
+    void prePersist(){
+        createdAt = OffsetDateTime.now();
+    }
 
     protected void setAccountNumberHash(String accountNumberHash) {
         this.accountNumberHash = accountNumberHash;
