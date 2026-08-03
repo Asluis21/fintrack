@@ -44,6 +44,7 @@ public class PersonalData {
         LocalDate birthdate,
         Country documentCountry,
         String documentNumberHash,
+        String documentNumberEncrypted,
         User user
     ) {
         this.name = name;
@@ -53,6 +54,7 @@ public class PersonalData {
         this.birthdate = birthdate;
         this.documentCountry = documentCountry;
         this.documentNumberHash = documentNumberHash;
+        this.documentNumberEncrypted = documentNumberEncrypted;
         this.user = user;
     }
     
@@ -87,6 +89,9 @@ public class PersonalData {
     @Column(name = "document_number_hash", length = 128, nullable = false)
     private String documentNumberHash;
 
+    @Column(name = "document_number_encrypted", length = 500, nullable = false)
+    private String documentNumberEncrypted;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "personal_data_user_id", 
@@ -103,4 +108,25 @@ public class PersonalData {
         this.name = name;
         this.surname = surname;
     }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
+    
+    public void updateDocumentDetails(Country country, String hash, String encrypted) {
+        if (country == null || hash == null || encrypted == null) {
+            throw new IllegalArgumentException("Document details cannot be null");
+        }
+        this.documentCountry = country;
+        this.documentNumberHash = hash;
+        this.documentNumberEncrypted = encrypted;
+    }   
 }
