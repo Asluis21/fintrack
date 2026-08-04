@@ -2,8 +2,9 @@ package com.asluis.fintrack.fintrack.account.model;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
-import com.asluis.fintrack.fintrack.common.models.Currency;
+import com.asluis.fintrack.fintrack.shared.models.Currency;
 import com.asluis.fintrack.fintrack.user.model.User;
 
 import jakarta.persistence.CheckConstraint;
@@ -11,6 +12,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,50 +42,49 @@ import lombok.NoArgsConstructor;
 )
 public class Account {
 
-    public Account(User user, String accountNumberHash, String accountNumberEncrypted, Currency currency,
-            AccountType accountType) {
-        this.user = user;
-        this.accountNumberHash = accountNumberHash;
-        this.accountNumberEncrypted = accountNumberEncrypted;
-        this.currency = currency;
-        this.accountType = accountType;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "user_id",
         foreignKey = @ForeignKey(name = "fk_account_user"),
-        nullable = false
+        nullable = false,
+        updatable = false
     )
     private User user;
 
-    @Column(length = 128, name = "account_number_hash", nullable = false)
+    @Getter(AccessLevel.NONE)
+    @Column(length = 128, name = "account_number_hash", nullable = false, updatable = false)
     private String accountNumberHash;
 
-    @Column(length = 500, name = "account_number_encrypted", nullable = false)
+    @Getter(AccessLevel.NONE)
+    @Column(length = 500, name = "account_number_encrypted", nullable = false, updatable = false)
     private String accountNumberEncrypted;
 
     @Version
     @Column(nullable = false)
     private Long version;
 
-    @Column(nullable = false)
+    @Column(
+        precision = 19,
+        scale = 4,
+        nullable = false
+    )
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "currency_id",
         nullable = false,
-        foreignKey = @ForeignKey(name="fk_account_currency")
+        foreignKey = @ForeignKey(name="fk_account_currency"),
+        updatable = false
     )
     private Currency currency;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", length = 20, nullable = false)
+    @Column(name = "account_type", length = 20, nullable = false, updatable = false)
     private AccountType accountType;
     
     @Enumerated(EnumType.STRING)
@@ -93,28 +94,89 @@ public class Account {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
+    public Account(User user, String accountNumberHash, String accountNumberEncrypted, Currency currency,
+            AccountType accountType) {
+        
+        this.user                   = Objects.requireNonNull(user, "User must not be null");
+        this.accountNumberHash      = Objects.requireNonNull(accountNumberHash, "Account number hash must not be null");
+        
+        if(this.accountNumberHash.isBlank()){
+            throw new IllegalArgumentException("Account number hash must not be blank");
+        }
+        
+        this.accountNumberEncrypted = Objects.requireNonNull(accountNumberEncrypted, "Account number encrypted must not be null");
+
+        if(this.accountNumberEncrypted.isBlank()){
+            throw new IllegalArgumentException("Account number encrypted must not be null");
+        }
+
+        this.currency               = Objects.requireNonNull(currency, "Currency must not be null");
+        this.accountType            = Objects.requireNonNull(accountType, "Account type must not be null");
+    }
+
     @PrePersist
     void prePersist(){
-        createdAt = OffsetDateTime.now();
+
+        if (createdAt == null) {
+            createdAt = OffsetDateTime.now();
+        }
     }
 
-    protected void setAccountNumberHash(String accountNumberHash) {
-        this.accountNumberHash = accountNumberHash;
+    protected void deposit(BigDecimal amount) {
+
+        this.validateAmount(amount);
+
+        this.balance = balance.add(amount);
     }
 
-    protected void setAccountNumberEncrypted(String accountNumberEncrypted) {
-        this.accountNumberEncrypted = accountNumberEncrypted;
+    protected void withdraw(BigDecimal amount){
+
+        this.validateAmount(amount);
+
+        if (amount.compareTo(balance) > 0) {
+            throw new IllegalArgumentException("Insufficient balance");
+        }
+
+        balance = balance.subtract(amount);
     }
 
-    protected void setBalance(BigDecimal balance) {
-        this.balance = balance;
+    private void validateAmount(BigDecimal amount){
+        amount = Objects.requireNonNull(amount, "Amount must not be null");
+
+        if(amount.signum() <= 0) throw new IllegalArgumentException("Amount must be positive");
     }
 
-    protected void setAccountType(AccountType accountType) {
-        this.accountType = accountType;
+    public String decryptAccountNumber(){
+        return null;
     }
 
-    protected void setStatus(Status status) {
-        this.status = status;
+    protected void activate(){
+        changeStatus(Status.ACTIVE);
+    }
+
+    protected void deactivate(){
+        changeStatus(Status.INACTIVE);
+    }
+
+    protected void freeze(){
+        changeStatus(Status.FROZEN);
+    }
+
+    protected void close(){
+        changeStatus(Status.CLOSED);
+    }
+
+    private void changeStatus(Status newStatus){
+
+         if(status == Status.CLOSED){
+            throw new IllegalStateException("Closed account cannot change status");
+        }
+
+
+        if(this.status == newStatus){
+            throw new IllegalArgumentException("Account is already " + newStatus);
+        }
+
+        this.status = newStatus;
     }
 }

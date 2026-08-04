@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
-import com.asluis.fintrack.fintrack.common.models.Currency;
+import com.asluis.fintrack.fintrack.shared.models.Currency;
 import com.asluis.fintrack.fintrack.user.model.User;
 
 import jakarta.persistence.CheckConstraint;

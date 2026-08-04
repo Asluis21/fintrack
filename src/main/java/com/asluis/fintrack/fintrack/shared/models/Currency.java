@@ -1,4 +1,7 @@
-package com.asluis.fintrack.fintrack.common.models;
+package com.asluis.fintrack.fintrack.shared.models;
+
+import java.util.Locale;
+import java.util.Objects;
 
 import jakarta.persistence.CheckConstraint;
 
@@ -30,46 +33,42 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Currency {
     
-    public Currency(String name, String isoCode, int decimalPlaces) {
-        this.name = name;
-        this.isoCode = isoCode;
-
-        if(decimalPlaces < 0){
-            throw new IllegalArgumentException("Decimal places must not be negative");
-        }
-
-        this.decimalPlaces = decimalPlaces;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, updatable = false)
     private String name;
 
     // ISO 4217 (currency codes like PEN, USD, or EUR)
-    @Column(name ="iso_code", length = 3, nullable = false)
+    @Column(name ="iso_code", length = 3, nullable = false, updatable = false)
     private String isoCode;
     
-    @Column(name = "decimal_places", nullable = false)
+    @Column(name = "decimal_places", nullable = false, updatable = false)
     private int decimalPlaces;
 
-    
-    protected void setName(String name) {
-        this.name = name;
-    }
 
-    protected void setIsoCode(String isoCode) {
-        this.isoCode = isoCode;
-    }
+    public Currency(String name, String isoCode, int decimalPlaces) {
+        name = Objects.requireNonNull(name, "Currency name must not be null").trim();
 
-    protected void setDecimalPlaces(int decimalPlaces) {
-        
+        if(name.isBlank()){
+            throw new IllegalArgumentException("Currency name must not be blank");
+        }
+
+        isoCode = Objects.requireNonNull(isoCode, "ISO code must not be null")
+                        .trim()
+                        .toUpperCase(Locale.ROOT);
+
+        if(!isoCode.matches("[A-Z]{3}")){
+            throw new IllegalArgumentException("ISO code must contain exactly 3 uppercase letters");
+        }
+
         if(decimalPlaces < 0){
             throw new IllegalArgumentException("Decimal places must not be negative");
         }
-        
+
+        this.name = name.trim().replaceAll("\\s+", " ");
+        this.isoCode = isoCode;
         this.decimalPlaces = decimalPlaces;
     }
 
