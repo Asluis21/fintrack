@@ -14,7 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.stereotype.Service;
 
-import com.asluis.fintrack.fintrack.shared.domain.EncryptionException;
+import com.asluis.fintrack.fintrack.common.exception.EncryptionException;
 
 @Service
 public class AesGcmEncryptionService implements EncryptionService{
@@ -23,6 +23,7 @@ public class AesGcmEncryptionService implements EncryptionService{
     private final SecretKey secretKey;
     private final SecureRandom secureRandom = new SecureRandom();
     private static final String KEY_ALGORITHM = "AES";
+    private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     
 
     public AesGcmEncryptionService(AesGcmProperties aesGcmProperties) {
@@ -57,6 +58,10 @@ public class AesGcmEncryptionService implements EncryptionService{
 
         Objects.requireNonNull(value, "Value must not be null");
 
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Value must not be blank");
+        }
+
         try{
             byte[] decoded = Base64.getDecoder().decode(value);
     
@@ -71,7 +76,7 @@ public class AesGcmEncryptionService implements EncryptionService{
             byte[] cipherText = new byte[buffer.remaining()];
             buffer.get(cipherText);
 
-            Cipher cipher = Cipher.getInstance(aesGcmProperties.algorithm());
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(
                 Cipher.DECRYPT_MODE, 
                 secretKey,
@@ -89,12 +94,16 @@ public class AesGcmEncryptionService implements EncryptionService{
     public String encrypt(String value) {
 
         Objects.requireNonNull(value, "Value must not be null");
+
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("Value must not be blank");
+        }
         
         byte[] iv = new byte[aesGcmProperties.ivLengthBytes()];
         try{
             secureRandom.nextBytes(iv);
     
-            Cipher cipher = Cipher.getInstance(aesGcmProperties.algorithm());
+            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(
                 Cipher.ENCRYPT_MODE, 
                 secretKey,

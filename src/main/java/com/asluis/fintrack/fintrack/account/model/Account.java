@@ -4,19 +4,18 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
-import com.asluis.fintrack.fintrack.shared.models.Currency;
+import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.user.model.User;
 
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
@@ -40,46 +39,38 @@ import lombok.NoArgsConstructor;
         @CheckConstraint(name="chk_account_balance", constraint = "balance >= 0")
     }
 )
-public class Account {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Account extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-        name = "user_id",
-        foreignKey = @ForeignKey(name = "fk_account_user"),
-        nullable = false,
-        updatable = false
+        name        = "user_id",
+        foreignKey  = @ForeignKey(name = "fk_account_user"),
+        nullable    = false,
+        updatable   = false
     )
     private User user;
 
-    @Getter(AccessLevel.NONE)
-    @Column(length = 128, name = "account_number_hash", nullable = false, updatable = false)
-    private String accountNumberHash;
-
-    @Getter(AccessLevel.NONE)
-    @Column(length = 500, name = "account_number_encrypted", nullable = false, updatable = false)
-    private String accountNumberEncrypted;
+    
+    @Embedded
+    private AccountNumber accountNumber;
 
     @Version
     @Column(nullable = false)
     private Long version;
 
     @Column(
-        precision = 19,
-        scale = 4,
-        nullable = false
+        precision   = 19,
+        scale       = 4,
+        nullable    = false
     )
     private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-        name = "currency_id",
-        nullable = false,
-        foreignKey = @ForeignKey(name="fk_account_currency"),
-        updatable = false
+        name        = "currency_id",
+        nullable    = false,
+        foreignKey  = @ForeignKey(name="fk_account_currency"),
+        updatable   = false
     )
     private Currency currency;
     
@@ -94,24 +85,12 @@ public class Account {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    public Account(User user, String accountNumberHash, String accountNumberEncrypted, Currency currency,
-            AccountType accountType) {
+    public Account(User user, Currency currency, AccountType accountType, AccountNumber accountNumber) {
         
-        this.user                   = Objects.requireNonNull(user, "User must not be null");
-        this.accountNumberHash      = Objects.requireNonNull(accountNumberHash, "Account number hash must not be null");
-        
-        if(this.accountNumberHash.isBlank()){
-            throw new IllegalArgumentException("Account number hash must not be blank");
-        }
-        
-        this.accountNumberEncrypted = Objects.requireNonNull(accountNumberEncrypted, "Account number encrypted must not be null");
-
-        if(this.accountNumberEncrypted.isBlank()){
-            throw new IllegalArgumentException("Account number encrypted must not be null");
-        }
-
-        this.currency               = Objects.requireNonNull(currency, "Currency must not be null");
-        this.accountType            = Objects.requireNonNull(accountType, "Account type must not be null");
+        this.user           = Objects.requireNonNull(user, "User must not be null");
+        this.accountNumber  = Objects.requireNonNull(accountNumber, "Account number must not be null");
+        this.currency       = Objects.requireNonNull(currency, "Currency must not be null");
+        this.accountType    = Objects.requireNonNull(accountType, "Account type must not be null");
     }
 
     @PrePersist

@@ -1,18 +1,19 @@
 package com.asluis.fintrack.fintrack.user.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
+
+import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -34,63 +35,35 @@ import lombok.NoArgsConstructor;
     }
 )
 @Entity
-public class PersonalData {
+public class PersonalData extends BaseEntity{
 
-    public PersonalData(
-        String name,
-        String surname,
-        String phone,
-        Gender gender,
-        LocalDate birthdate,
-        Country documentCountry,
-        String documentNumberHash,
-        String documentNumberEncrypted,
-        User user
-    ) {
-        this.name = name;
-        this.surname = surname;
-        this.phone = phone;
-        this.gender = gender;
-        this.birthdate = birthdate;
-        this.documentCountry = documentCountry;
-        this.documentNumberHash = documentNumberHash;
-        this.documentNumberEncrypted = documentNumberEncrypted;
-        this.user = user;
-    }
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(length = 100, nullable = false)
+    @Column(
+        length      = 100, 
+        nullable    = false
+    )
     private String name;
 
-    @Column(length = 100, nullable = false)
+    @Column(
+        length      = 100, 
+        nullable    = false
+    )
     private String surname;
 
     @Column(length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 10, nullable = false)
+    @Column(
+        length      = 10, 
+        nullable    = false
+    )
     private Gender gender;
 
     @Column(nullable = false)
     private LocalDate birthdate;
     
-    @ManyToOne
-    @JoinColumn(
-        name = "document_country_id", 
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_personal_data_document_country")
-    )
-    private Country documentCountry;
-
-    @Column(name = "document_number_hash", length = 128, nullable = false)
-    private String documentNumberHash;
-
-    @Column(name = "document_number_encrypted", length = 500, nullable = false)
-    private String documentNumberEncrypted;
+    @Embedded
+    private IdentityDocument identityDocument;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -100,33 +73,38 @@ public class PersonalData {
     )
     private User user;
 
+    public PersonalData(
+        String name,
+        String surname,
+        String phone,
+        Gender gender,
+        IdentityDocument identityDocument,
+        LocalDate birthdate,
+        User user
+    ) {
+        this.name               = normalizeRequiredText(name, "Name");
+        this.surname            = normalizeRequiredText(surname, "Surname");
+        this.phone              = normalizeRequiredText(phone, "Phone");
+        this.gender             = Objects.requireNonNull(gender, "Gender is required");
+        this.identityDocument   = Objects.requireNonNull(identityDocument, "Identity document is required");
+        this.birthdate          = Objects.requireNonNull(birthdate, "Birthdate is required");
+        this.user               = Objects.requireNonNull(user, "User is required");
+    }
+
     protected void changePhone(String phone) {
-        this.phone = phone;
+        this.phone = normalizeRequiredText(phone, "Phone");
     }
 
     protected void changeName(String name, String surname) {
-        this.name = name;
-        this.surname = surname;
+        this.name       = normalizeRequiredText(name, "Name");
+        this.surname    = normalizeRequiredText(surname, "Surname");
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void changeGender(Gender gender) {
+        this.gender = Objects.requireNonNull(gender, "Gender is required");
     }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
-    }
-    
-    public void updateDocumentDetails(Country country, String hash, String encrypted) {
-        if (country == null || hash == null || encrypted == null) {
-            throw new IllegalArgumentException("Document details cannot be null");
-        }
-        this.documentCountry = country;
-        this.documentNumberHash = hash;
-        this.documentNumberEncrypted = encrypted;
-    }   
+    public void changeBirthdate(LocalDate birthdate) {
+        this.birthdate  = Objects.requireNonNull(birthdate, "Birthdate is required");
+    } 
 }

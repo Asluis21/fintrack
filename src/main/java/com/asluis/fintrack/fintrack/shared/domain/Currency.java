@@ -1,15 +1,16 @@
-package com.asluis.fintrack.fintrack.shared.models;
+package com.asluis.fintrack.fintrack.shared.domain;
 
 import java.util.Locale;
-import java.util.Objects;
+import java.util.regex.Pattern;
+
+import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.validateRequired;
 
 import jakarta.persistence.CheckConstraint;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -31,11 +32,9 @@ import lombok.NoArgsConstructor;
         }
 )
 @Entity
-public class Currency {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Currency extends BaseEntity{
+
+    private static final Pattern ISO_CODE_PATTERN = Pattern.compile("[A-Z]{3}");
 
     @Column(length = 100, nullable = false, updatable = false)
     private String name;
@@ -49,17 +48,12 @@ public class Currency {
 
 
     public Currency(String name, String isoCode, int decimalPlaces) {
-        name = Objects.requireNonNull(name, "Currency name must not be null").trim();
 
-        if(name.isBlank()){
-            throw new IllegalArgumentException("Currency name must not be blank");
-        }
+        this.name = validateRequired(name, "Currency name").replaceAll("\\s+", " ");;
 
-        isoCode = Objects.requireNonNull(isoCode, "ISO code must not be null")
-                        .trim()
-                        .toUpperCase(Locale.ROOT);
+        this.isoCode = validateRequired(isoCode, "ISO code").toUpperCase(Locale.ROOT);
 
-        if(!isoCode.matches("[A-Z]{3}")){
+        if(!ISO_CODE_PATTERN.matcher(isoCode).matches()){
             throw new IllegalArgumentException("ISO code must contain exactly 3 uppercase letters");
         }
 
@@ -67,25 +61,6 @@ public class Currency {
             throw new IllegalArgumentException("Decimal places must not be negative");
         }
 
-        this.name = name.trim().replaceAll("\\s+", " ");
-        this.isoCode = isoCode;
         this.decimalPlaces = decimalPlaces;
     }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-
-        if (!(o instanceof Currency other)){
-            return false;
-        }
-        
-        return id != null && id.equals(other.id);
-    }    
 }

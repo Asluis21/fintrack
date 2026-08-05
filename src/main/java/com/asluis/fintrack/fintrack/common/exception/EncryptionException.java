@@ -1,4 +1,4 @@
-package com.asluis.fintrack.fintrack.shared.domain;
+package com.asluis.fintrack.fintrack.common.exception;
 
 public class EncryptionException extends RuntimeException{
 
