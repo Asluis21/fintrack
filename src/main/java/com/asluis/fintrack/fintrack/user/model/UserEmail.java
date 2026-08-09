@@ -2,13 +2,13 @@ package com.asluis.fintrack.fintrack.user.model;
 
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
 public class UserEmail {
@@ -20,7 +20,6 @@ public class UserEmail {
     )
     private String emailEncrypted;
     
-    @Getter(value = AccessLevel.PRIVATE)
     @Column(
         name        = "email_lookup_hash", 
         nullable    = false, 
@@ -36,5 +35,9 @@ public class UserEmail {
     protected final void changeEmail(String emailEncrypted, String emailLookupHash){
         this.emailEncrypted     = normalizeRequiredText(emailEncrypted, "Email encrypted");
         this.emailLookupHash    = normalizeRequiredText(emailLookupHash, "Email lookup Hash");
+    }
+
+    protected String decryptEmail(EncryptionService encryptionService){
+        return encryptionService.decrypt(emailEncrypted);
     }
 }

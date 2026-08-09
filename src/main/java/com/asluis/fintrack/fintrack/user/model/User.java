@@ -3,6 +3,8 @@ package com.asluis.fintrack.fintrack.user.model;
 import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 
 import jakarta.persistence.Column;
@@ -33,6 +35,7 @@ public class User extends BaseEntity{
     @Embedded
     private UserEmail userEmail;
 
+    @Getter(value = AccessLevel.NONE)
     @Column(
         nullable    = false, 
         length      = 255
@@ -55,6 +58,10 @@ public class User extends BaseEntity{
         this.userEmail      = Objects.requireNonNull(userEmail, "User Email is required");
         this.passwordHash   = normalizeRequiredText(passwordHash, "Password hash");
         this.role           = Objects.requireNonNull(role, "Role is required");
+    }
+
+    public String decryptEmail(EncryptionService encryptionService){
+        return userEmail.decryptEmail(encryptionService);
     }
 
     protected boolean isPasswordHashEquals(String paswordHash){

@@ -22,7 +22,6 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -97,13 +96,6 @@ public class Transaction extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @Column(
-        name        = "created_at", 
-        nullable    = false, 
-        updatable   = false
-    )
-    private OffsetDateTime createdAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name        = "category_id",
@@ -149,11 +141,6 @@ public class Transaction extends BaseEntity {
 
     @OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransactionEntry> transactionEntries;
-
-    @PrePersist
-    void prePersist(){
-        this.createdAt = OffsetDateTime.now(); 
-    }
 
     public Transaction(String referenceNumber, String description, User user, Type type, Status status, Category category,
             BigDecimal exchangeRate, OffsetDateTime exchangeRateTime, Currency sourceCurrency, Currency targetCurrency) {

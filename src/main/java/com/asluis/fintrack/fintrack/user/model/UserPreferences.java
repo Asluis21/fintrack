@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -39,8 +40,8 @@ public class UserPreferences extends BaseEntity{
     )
     private LanguageCode languageCode = LanguageCode.EN;
     
-    @Getter(value = AccessLevel.PRIVATE)
-    @OneToOne
+    @Getter(value = AccessLevel.NONE)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
         name = "user_id",
         nullable = false,

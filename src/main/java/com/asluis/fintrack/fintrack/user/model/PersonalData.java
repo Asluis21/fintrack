@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeOptional;
 
@@ -66,7 +68,7 @@ public class PersonalData extends BaseEntity{
     @Embedded
     private IdentityDocument identityDocument;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
         name = "personal_data_user_id", 
         nullable = false, 
@@ -90,6 +92,10 @@ public class PersonalData extends BaseEntity{
         this.identityDocument   = Objects.requireNonNull(identityDocument, "Identity document is required");
         this.birthdate          = Objects.requireNonNull(birthdate, "Birthdate is required");
         this.user               = Objects.requireNonNull(user, "User is required");
+    }
+
+    public String decryptDocumentNumber(EncryptionService encryptionService){
+        return identityDocument.decryptDocumentNumber(encryptionService);
     }
 
     protected void changePhone(String phone) {

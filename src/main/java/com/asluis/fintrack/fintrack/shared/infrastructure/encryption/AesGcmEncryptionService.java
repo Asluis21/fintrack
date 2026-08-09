@@ -15,6 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.stereotype.Service;
 
 import com.asluis.fintrack.fintrack.common.exception.EncryptionException;
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 
 @Service
 public class AesGcmEncryptionService implements EncryptionService{
