@@ -1,18 +1,20 @@
 package com.asluis.fintrack.fintrack.user.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
+
+import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeOptional;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -28,64 +30,41 @@ import lombok.NoArgsConstructor;
         @UniqueConstraint(
             name="uk_document_country_number", 
             columnNames = {
-                "document_country_id",
+                "country_id",
                 "document_number_hash"
             })
     }
 )
 @Entity
-public class PersonalData {
+public class PersonalData extends BaseEntity{
 
-    public PersonalData(
-        String name,
-        String surname,
-        String phone,
-        Gender gender,
-        LocalDate birthdate,
-        Country documentCountry,
-        String documentNumberHash,
-        User user
-    ) {
-        this.name = name;
-        this.surname = surname;
-        this.phone = phone;
-        this.gender = gender;
-        this.birthdate = birthdate;
-        this.documentCountry = documentCountry;
-        this.documentNumberHash = documentNumberHash;
-        this.user = user;
-    }
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(length = 100, nullable = false)
+    @Column(
+        length      = 100, 
+        nullable    = false
+    )
     private String name;
 
-    @Column(length = 100, nullable = false)
+    @Column(
+        length      = 100, 
+        nullable    = false
+    )
     private String surname;
 
     @Column(length = 20)
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 10, nullable = false)
+    @Column(
+        length      = 10, 
+        nullable    = false
+    )
     private Gender gender;
 
     @Column(nullable = false)
     private LocalDate birthdate;
     
-    @ManyToOne
-    @JoinColumn(
-        name = "document_country_id", 
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_personal_data_document_country")
-    )
-    private Country documentCountry;
-
-    @Column(name = "document_number_hash", length = 128, nullable = false)
-    private String documentNumberHash;
+    @Embedded
+    private IdentityDocument identityDocument;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -95,12 +74,38 @@ public class PersonalData {
     )
     private User user;
 
+    public PersonalData(
+        String name,
+        String surname,
+        String phone,
+        Gender gender,
+        IdentityDocument identityDocument,
+        LocalDate birthdate,
+        User user
+    ) {
+        this.name               = normalizeRequiredText(name, "Name");
+        this.surname            = normalizeRequiredText(surname, "Surname");
+        this.phone              = normalizeOptional(phone);
+        this.gender             = Objects.requireNonNull(gender, "Gender is required");
+        this.identityDocument   = Objects.requireNonNull(identityDocument, "Identity document is required");
+        this.birthdate          = Objects.requireNonNull(birthdate, "Birthdate is required");
+        this.user               = Objects.requireNonNull(user, "User is required");
+    }
+
     protected void changePhone(String phone) {
-        this.phone = phone;
+        this.phone = normalizeOptional(phone);
     }
 
     protected void changeName(String name, String surname) {
-        this.name = name;
-        this.surname = surname;
+        this.name       = normalizeRequiredText(name, "Name");
+        this.surname    = normalizeRequiredText(surname, "Surname");
     }
+
+    public void changeGender(Gender gender) {
+        this.gender = Objects.requireNonNull(gender, "Gender is required");
+    }
+
+    public void changeBirthdate(LocalDate birthdate) {
+        this.birthdate  = Objects.requireNonNull(birthdate, "Birthdate is required");
+    } 
 }

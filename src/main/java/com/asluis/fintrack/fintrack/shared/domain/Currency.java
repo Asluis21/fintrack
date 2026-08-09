@@ -1,12 +1,16 @@
-package com.asluis.fintrack.fintrack.common.models;
+package com.asluis.fintrack.fintrack.shared.domain;
+
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.validateRequired;
 
 import jakarta.persistence.CheckConstraint;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -28,49 +32,35 @@ import lombok.NoArgsConstructor;
         }
 )
 @Entity
-public class Currency {
-    
-    public Currency(String name, String isoCode, int decimalPlaces) {
-        this.name = name;
-        this.isoCode = isoCode;
+public class Currency extends BaseEntity{
 
-        if(decimalPlaces < 0){
-            throw new IllegalArgumentException("Decimal places must not be negative");
-        }
+    private static final Pattern ISO_CODE_PATTERN = Pattern.compile("[A-Z]{3}");
 
-        this.decimalPlaces = decimalPlaces;
-    }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, updatable = false)
     private String name;
 
     // ISO 4217 (currency codes like PEN, USD, or EUR)
-    @Column(name ="iso_code", length = 3, nullable = false)
+    @Column(name ="iso_code", length = 3, nullable = false, updatable = false)
     private String isoCode;
     
-    @Column(name = "decimal_places", nullable = false)
+    @Column(name = "decimal_places", nullable = false, updatable = false)
     private int decimalPlaces;
 
-    
-    protected void setName(String name) {
-        this.name = name;
-    }
 
-    protected void setIsoCode(String isoCode) {
-        this.isoCode = isoCode;
-    }
+    public Currency(String name, String isoCode, int decimalPlaces) {
 
-    protected void setDecimalPlaces(int decimalPlaces) {
-        
+        this.name = validateRequired(name, "Currency name").replaceAll("\\s+", " ");;
+
+        this.isoCode = validateRequired(isoCode, "ISO code").toUpperCase(Locale.ROOT);
+
+        if(!ISO_CODE_PATTERN.matcher(isoCode).matches()){
+            throw new IllegalArgumentException("ISO code must contain exactly 3 uppercase letters");
+        }
+
         if(decimalPlaces < 0){
             throw new IllegalArgumentException("Decimal places must not be negative");
         }
-        
+
         this.decimalPlaces = decimalPlaces;
     }
-
 }
