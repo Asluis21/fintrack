@@ -12,24 +12,24 @@ import lombok.NoArgsConstructor;
 public class AccountNumber {
     
     @Column(
-        name = "account_number_encrypted",
-        length = 500, 
-        nullable = false, 
-        updatable = false
+        name        = "account_number_encrypted",
+        length      = 500, 
+        nullable    = false, 
+        updatable   = false
     )
     private String encrypted;
 
     @Column(
-        name = "account_number_hash",
-        length = 128, 
-        nullable = false, 
-        updatable = false
+        name        = "account_number_hash",
+        length      = 128, 
+        nullable    = false, 
+        updatable   = false
     )
     private String hash;
 
     public AccountNumber(String encrypted, String hash) {
-        this.encrypted = validateRequired(encrypted, "Encrypted");
-        this.hash = validateRequired(hash, "Hash");
+        this.encrypted  = validateRequired(encrypted, "Encrypted");
+        this.hash       = validateRequired(hash, "Hash");
     }
 
     protected String encrypted(){

@@ -33,10 +33,16 @@ import lombok.NoArgsConstructor;
     name = "accounts",
     schema = "account_domain",
     uniqueConstraints = {
-        @UniqueConstraint(name="uk_account_account_number_hash", columnNames = "account_number_hash")
+        @UniqueConstraint(
+            name        ="uk_account_account_number_hash", 
+            columnNames = "account_number_hash"
+        )
     },
     check = {
-        @CheckConstraint(name="chk_account_balance", constraint = "balance >= 0")
+        @CheckConstraint(
+            name        = "chk_account_balance", 
+            constraint  = "balance >= 0"
+        )
     }
 )
 public class Account extends BaseEntity{
@@ -75,14 +81,23 @@ public class Account extends BaseEntity{
     private Currency currency;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", length = 20, nullable = false, updatable = false)
+    @Column(
+        name        = "account_type", 
+        length      = 20, 
+        nullable    = false, 
+        updatable   = false)
     private AccountType accountType;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(
+        nullable    = false, 
+        length      = 10)
     private Status status = Status.ACTIVE;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(
+        name        = "created_at", 
+        nullable    = false, 
+        updatable   = false)
     private OffsetDateTime createdAt;
 
     public Account(User user, Currency currency, AccountType accountType, AccountNumber accountNumber) {

@@ -1,5 +1,8 @@
 package com.asluis.fintrack.fintrack.common.domain;
 
+import java.time.OffsetDateTime;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,6 +19,14 @@ public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+      
+    @Column(
+        name        = "created_at", 
+        nullable    = false, 
+        updatable   = false
+    )
+    private OffsetDateTime createdAt = OffsetDateTime.now();
 
     @Override
     public final boolean equals(Object obj) {

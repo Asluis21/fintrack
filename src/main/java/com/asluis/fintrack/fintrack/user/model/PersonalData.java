@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeOptional;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
         @UniqueConstraint(
             name="uk_document_country_number", 
             columnNames = {
-                "document_country_id",
+                "country_id",
                 "document_number_hash"
             })
     }
@@ -84,7 +85,7 @@ public class PersonalData extends BaseEntity{
     ) {
         this.name               = normalizeRequiredText(name, "Name");
         this.surname            = normalizeRequiredText(surname, "Surname");
-        this.phone              = normalizeRequiredText(phone, "Phone");
+        this.phone              = normalizeOptional(phone);
         this.gender             = Objects.requireNonNull(gender, "Gender is required");
         this.identityDocument   = Objects.requireNonNull(identityDocument, "Identity document is required");
         this.birthdate          = Objects.requireNonNull(birthdate, "Birthdate is required");
@@ -92,7 +93,7 @@ public class PersonalData extends BaseEntity{
     }
 
     protected void changePhone(String phone) {
-        this.phone = normalizeRequiredText(phone, "Phone");
+        this.phone = normalizeOptional(phone);
     }
 
     protected void changeName(String name, String surname) {

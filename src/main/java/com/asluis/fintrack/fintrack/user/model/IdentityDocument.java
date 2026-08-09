@@ -18,16 +18,16 @@ import lombok.NoArgsConstructor;
 public class IdentityDocument {
     
     @Column(
-        name = "document_number_hash", 
-        length = 128, 
-        nullable = false
+        name        = "document_number_hash", 
+        length      = 128, 
+        nullable    = false
     )
     private String documentNumberHash;
 
     @Column(
-        name = "document_number_encrypted", 
-        length = 500, 
-        nullable = false
+        name        = "document_number_encrypted", 
+        length      = 500, 
+        nullable    = false
     )
     private String documentNumberEncrypted;
 
@@ -49,12 +49,12 @@ public class IdentityDocument {
         return this.documentNumberEncrypted;
     }
 
-    public void updateDocumentDetails(Country country, String hash, String encrypted) {
+    protected void updateDocumentDetails(Country country, String hash, String encrypted) {
         if (country == null || hash == null || encrypted == null) {
             throw new IllegalArgumentException("Document details cannot be null");
         }
-        this.country                    = country;
-        this.documentNumberHash         = hash;
-        this.documentNumberEncrypted    = encrypted;
+        this.country                    = Objects.requireNonNull(country, "Country is required");   
+        this.documentNumberHash         = normalizeRequiredText(hash, "Document number hash");
+        this.documentNumberEncrypted    = normalizeRequiredText(encrypted, "Document number encrypted");
     }  
 }
