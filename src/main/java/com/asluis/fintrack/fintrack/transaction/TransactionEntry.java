@@ -1,13 +1,15 @@
 package com.asluis.fintrack.fintrack.transaction;
 
 import java.math.BigDecimal;
-import java.util.Currency;
 import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.account.model.Account;
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
+import com.asluis.fintrack.fintrack.shared.domain.Currency;
+
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeOptional;
 
+import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +26,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table
+@Table(
+    name = "transaction_entries",
+    schema = "transaction_domain",
+    check = {
+        @CheckConstraint(
+            name="chk_transaction_entries_amount_positive",
+            constraint = "amount > 0"
+        )
+    }
+)
 public class TransactionEntry extends BaseEntity{
     
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,7 +49,7 @@ public class TransactionEntry extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-        name        = "acount_id",
+        name        = "account_id",
         foreignKey  = @ForeignKey(name="fk_transaction_entry_acount"),
         nullable    = false,
         updatable   = false
@@ -65,7 +76,7 @@ public class TransactionEntry extends BaseEntity{
         name        = "currency_id",
         nullable    = false,
         updatable   = false,
-        foreignKey  = @ForeignKey(name="fk_transaction_entry_acount")
+        foreignKey  = @ForeignKey(name="fk_transaction_entry_currency")
     )
     private Currency currency;
 
@@ -80,6 +91,9 @@ public class TransactionEntry extends BaseEntity{
         this.transaction            = Objects.requireNonNull(transaction, "Transaction is required");
         this.account                = Objects.requireNonNull(account, "Account is required");
         this.transactionEntryType   = Objects.requireNonNull(transactionEntryType, "Transaction entry type is required");
+        
+        if (amount.signum() <= 0) throw new IllegalArgumentException("Amount can not be negative");
+        
         this.amount                 = Objects.requireNonNull(amount, "Amount is required");
         this.currency               = Objects.requireNonNull(currency, "Currency is required");
         this.description            = normalizeOptional(description);

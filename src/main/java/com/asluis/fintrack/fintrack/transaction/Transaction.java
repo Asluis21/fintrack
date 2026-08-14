@@ -145,8 +145,6 @@ public class Transaction extends BaseEntity {
     public Transaction(String referenceNumber, String description, User user, Type type, Status status, Category category,
             BigDecimal exchangeRate, OffsetDateTime exchangeRateTime, Currency sourceCurrency, Currency targetCurrency) {
 
-        referenceNumber = normalizeRequiredText(referenceNumber, "Reference number");
-        
         this.user       = Objects.requireNonNull(user, "User must not be null");
         this.type       = Objects.requireNonNull(type, "Type must not be null");
         this.status     = Objects.requireNonNull(status, "Status must not be null");

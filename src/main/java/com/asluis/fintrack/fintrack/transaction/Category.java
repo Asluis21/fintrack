@@ -88,7 +88,7 @@ public class Category extends BaseEntity{
 
     protected boolean isAvailableFor(User user){
         return categoryOwnerType == CategoryOwnerType.SYSTEM
-                || Objects.equals(createdBy, user);
+                || createdBy.equals(user);
     }
 
     protected void rename(String name) {

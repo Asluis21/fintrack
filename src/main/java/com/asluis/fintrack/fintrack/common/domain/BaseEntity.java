@@ -2,6 +2,8 @@ package com.asluis.fintrack.fintrack.common.domain;
 
 import java.time.OffsetDateTime;
 
+import org.hibernate.Hibernate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,15 +42,15 @@ public abstract class BaseEntity {
 
     @Override
     public final boolean equals(Object obj) {
-        
-        if(this == obj) return true;
-
+        if (this == obj) return true;
         if (obj == null) return false;
 
-        if(getClass() != obj.getClass()) return false;
+        Class<?> thisEffectiveClass = Hibernate.getClass(this);
+        Class<?> otherEffectiveClass = Hibernate.getClass(obj);
+
+        if (thisEffectiveClass != otherEffectiveClass) return false;
 
         BaseEntity other = (BaseEntity) obj;
-
         return id != null && id.equals(other.id);
     }
 
