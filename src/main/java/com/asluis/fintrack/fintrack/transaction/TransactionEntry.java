@@ -8,6 +8,7 @@ import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeOptional;
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.validateRequired;
 
 import jakarta.persistence.CheckConstraint;
 import jakarta.persistence.Column;
@@ -50,7 +51,7 @@ public class TransactionEntry extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name        = "account_id",
-        foreignKey  = @ForeignKey(name="fk_transaction_entry_acount"),
+        foreignKey  = @ForeignKey(name="fk_transaction_entry_account"),
         nullable    = false,
         updatable   = false
     )
@@ -91,10 +92,10 @@ public class TransactionEntry extends BaseEntity{
         this.transaction            = Objects.requireNonNull(transaction, "Transaction is required");
         this.account                = Objects.requireNonNull(account, "Account is required");
         this.transactionEntryType   = Objects.requireNonNull(transactionEntryType, "Transaction entry type is required");
+        amount                      = Objects.requireNonNull(amount, "Amount can not be null");
         
         if (amount.signum() <= 0) throw new IllegalArgumentException("Amount can not be negative");
         
-        this.amount                 = Objects.requireNonNull(amount, "Amount is required");
         this.currency               = Objects.requireNonNull(currency, "Currency is required");
         this.description            = normalizeOptional(description);
     }    

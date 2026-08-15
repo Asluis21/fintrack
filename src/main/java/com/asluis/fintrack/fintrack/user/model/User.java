@@ -64,10 +64,6 @@ public class User extends BaseEntity{
         return userEmail.decryptEmail(encryptionService);
     }
 
-    protected boolean isPasswordHashEquals(String paswordHash){
-        return this.passwordHash.equals(paswordHash);
-    }
-    
     protected void changePassword(String passwordHash) {
         this.passwordHash = normalizeRequiredText(passwordHash, "Password hash");
     }

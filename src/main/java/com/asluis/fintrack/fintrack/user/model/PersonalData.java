@@ -30,11 +30,16 @@ import lombok.NoArgsConstructor;
     name = "personal_data", schema = "user_domain",
     uniqueConstraints={
         @UniqueConstraint(
-            name="uk_document_country_number", 
+            name="uk_document_country_number",
             columnNames = {
                 "country_id",
                 "document_number_hash"
-            })
+            }
+        ),
+        @UniqueConstraint(
+            name="uk_personal_data_user",
+            columnNames = "user_id"
+        )
     }
 )
 @Entity
@@ -70,7 +75,7 @@ public class PersonalData extends BaseEntity{
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
-        name = "personal_data_user_id", 
+        name = "user_id", 
         nullable = false, 
         foreignKey = @ForeignKey(name="fk_personal_data_user")
     )

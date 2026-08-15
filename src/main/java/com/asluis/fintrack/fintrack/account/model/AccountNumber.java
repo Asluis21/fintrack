@@ -2,6 +2,8 @@ package com.asluis.fintrack.fintrack.account.model;
 
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.validateRequired;
 
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
@@ -17,7 +19,7 @@ public class AccountNumber {
         nullable    = false, 
         updatable   = false
     )
-    private String encrypted;
+    private String accountNumberEncrypted;
 
     @Column(
         name        = "account_number_hash",
@@ -25,18 +27,14 @@ public class AccountNumber {
         nullable    = false, 
         updatable   = false
     )
-    private String hash;
+    private String accountNumberHash;
 
-    public AccountNumber(String encrypted, String hash) {
-        this.encrypted  = validateRequired(encrypted, "Encrypted");
-        this.hash       = validateRequired(hash, "Hash");
+    public AccountNumber(String accountNumberEncrypted, String accountNumberHash) {
+        this.accountNumberEncrypted  = validateRequired(accountNumberEncrypted, "Encrypted");
+        this.accountNumberHash       = validateRequired(accountNumberHash, "Hash");
     }
 
-    protected String encrypted(){
-        return encrypted;
-    }
-
-    protected String hash(){
-        return hash;
+    protected String decryptAccountNumber(EncryptionService encryptionService){
+        return encryptionService.decrypt(accountNumberEncrypted);
     }
 }

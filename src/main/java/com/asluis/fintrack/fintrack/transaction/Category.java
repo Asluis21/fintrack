@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
     uniqueConstraints = {
         @UniqueConstraint(
             name        =   "uk_category_name_createdBy", 
-            columnNames =   {"name", "created_by", "accounting_type"})
+            columnNames =   {"name", "created_by", "accounting_type"}),
     }
 )
 @Entity

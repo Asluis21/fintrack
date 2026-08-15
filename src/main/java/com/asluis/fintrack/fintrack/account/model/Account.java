@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.user.model.User;
 
 import jakarta.persistence.CheckConstraint;
@@ -124,8 +125,8 @@ public class Account extends BaseEntity{
         if(amount.signum() <= 0) throw new IllegalArgumentException("Amount must be positive");
     }
 
-    public String decryptAccountNumber(){
-        return null;
+    public String decryptAccountNumber(EncryptionService encryptionService){
+        return accountNumber.decryptAccountNumber(encryptionService);
     }
 
     protected void activate(){

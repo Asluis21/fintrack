@@ -13,6 +13,7 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
     name    = "user_preferences",
-    schema  = "user_domain"
+    schema  = "user_domain",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name="uk_user_preferences_user_id",
+            columnNames = "user_id"
+        )
+    }
 )
 public class UserPreferences extends BaseEntity{
     
