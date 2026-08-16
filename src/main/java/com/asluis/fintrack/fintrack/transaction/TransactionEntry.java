@@ -96,6 +96,7 @@ public class TransactionEntry extends BaseEntity{
         
         if (amount.signum() <= 0) throw new IllegalArgumentException("Amount can not be negative");
         
+        this.amount                 = amount;
         this.currency               = Objects.requireNonNull(currency, "Currency is required");
         this.description            = normalizeOptional(description);
     }    

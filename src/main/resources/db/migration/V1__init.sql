@@ -49,11 +49,11 @@ CREATE TABLE user_domain.personal_data (
     document_number_hash        VARCHAR(128) NOT NULL,
     document_number_encrypted   VARCHAR(500) NOT NULL,
     country_id                  BIGINT NOT NULL,
-    personal_data_user_id       BIGINT NOT NULL,
+    user_id                     BIGINT NOT NULL,
     CONSTRAINT uk_document_country_number UNIQUE (country_id, document_number_hash),
-    CONSTRAINT uk_personal_data_user UNIQUE (personal_data_user_id),
+    CONSTRAINT uk_personal_data_user UNIQUE (user_id),
     CONSTRAINT fk_personal_document_country FOREIGN KEY (country_id) REFERENCES user_domain.countries (id),
-    CONSTRAINT fk_personal_data_user FOREIGN KEY (personal_data_user_id) REFERENCES user_domain.users (id)
+    CONSTRAINT fk_personal_data_user FOREIGN KEY (user_id) REFERENCES user_domain.users (id)
 );
 
 -- user_domain.user_preferences
