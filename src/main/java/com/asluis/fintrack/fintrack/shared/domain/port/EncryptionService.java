@@ -1,4 +1,4 @@
-package com.asluis.fintrack.fintrack.shared.infrastructure.encryption;
+package com.asluis.fintrack.fintrack.shared.domain.port;
 
 public interface EncryptionService {
     

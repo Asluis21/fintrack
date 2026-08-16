@@ -1,11 +1,11 @@
 package com.asluis.fintrack.fintrack.account.model;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.user.model.User;
 
 import jakarta.persistence.CheckConstraint;
@@ -18,7 +18,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
@@ -94,26 +93,12 @@ public class Account extends BaseEntity{
         length      = 10)
     private Status status = Status.ACTIVE;
 
-    @Column(
-        name        = "created_at", 
-        nullable    = false, 
-        updatable   = false)
-    private OffsetDateTime createdAt;
-
     public Account(User user, Currency currency, AccountType accountType, AccountNumber accountNumber) {
         
         this.user           = Objects.requireNonNull(user, "User must not be null");
         this.accountNumber  = Objects.requireNonNull(accountNumber, "Account number must not be null");
         this.currency       = Objects.requireNonNull(currency, "Currency must not be null");
         this.accountType    = Objects.requireNonNull(accountType, "Account type must not be null");
-    }
-
-    @PrePersist
-    void prePersist(){
-
-        if (createdAt == null) {
-            createdAt = OffsetDateTime.now();
-        }
     }
 
     protected void deposit(BigDecimal amount) {
@@ -140,8 +125,8 @@ public class Account extends BaseEntity{
         if(amount.signum() <= 0) throw new IllegalArgumentException("Amount must be positive");
     }
 
-    public String decryptAccountNumber(){
-        return null;
+    public String decryptAccountNumber(EncryptionService encryptionService){
+        return accountNumber.decryptAccountNumber(encryptionService);
     }
 
     protected void activate(){
