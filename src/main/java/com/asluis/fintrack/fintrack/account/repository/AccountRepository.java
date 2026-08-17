@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.asluis.fintrack.fintrack.account.model.Account;
+import com.asluis.fintrack.fintrack.account.domain.Account;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
 

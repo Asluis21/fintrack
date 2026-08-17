@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.asluis.fintrack.fintrack.user.model.Address;
+import com.asluis.fintrack.fintrack.user.domain.Address;
 
 public interface AddressRepository extends JpaRepository<Address, Long> {
 

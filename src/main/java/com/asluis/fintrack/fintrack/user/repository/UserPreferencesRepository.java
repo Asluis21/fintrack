@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.asluis.fintrack.fintrack.user.model.UserPreferences;
+import com.asluis.fintrack.fintrack.user.domain.UserPreferences;
 
 public interface UserPreferencesRepository extends JpaRepository<UserPreferences, Long> {
 

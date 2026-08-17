@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.asluis.fintrack.fintrack.transaction.Category;
-import com.asluis.fintrack.fintrack.transaction.CategoryOwnerType;
+import com.asluis.fintrack.fintrack.transaction.domain.Category;
+import com.asluis.fintrack.fintrack.transaction.domain.CategoryOwnerType;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
