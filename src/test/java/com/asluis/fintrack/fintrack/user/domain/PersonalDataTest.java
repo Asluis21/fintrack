@@ -5,25 +5,35 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class PersonalDataTest {
 
-    private User user() {
-        return new User(new UserEmail("encrypted", "hash"), "hashedPassword", Role.USER);
+    private final EncryptionService encryptionService = mock(EncryptionService.class);
+    private final HashService hashService = mock(HashService.class);
+
+    PersonalDataTest() {
+        when(encryptionService.encrypt(anyString())).thenReturn("encrypted");
+        when(hashService.hash(anyString())).thenReturn("hash");
     }
 
-    private IdentityDocument identityDocument() {
-        return new IdentityDocument("docHash", "docEncrypted", new Country("United States", "USA"));
+    private User user() {
+        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
+    }
+
+    private Country country() {
+        return new Country("United States", "USA");
     }
 
     private PersonalData newPersonalData() {
-        return new PersonalData("Jane", "Doe", "555-1234", Gender.FEMALE, identityDocument(),
-                LocalDate.of(1990, 1, 1), user());
+        return new PersonalData("Jane", "Doe", "555-1234", Gender.FEMALE, "123456789", country(),
+                LocalDate.of(1990, 1, 1), user(), encryptionService, hashService);
     }
 
     @Test
@@ -38,21 +48,21 @@ class PersonalDataTest {
     @Test
     void nullGender_throws() {
         assertThatThrownBy(() -> new PersonalData("Jane", "Doe", "555-1234", null,
-                identityDocument(), LocalDate.of(1990, 1, 1), user()))
+                "123456789", country(), LocalDate.of(1990, 1, 1), user(), encryptionService, hashService))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void nullUser_throws() {
         assertThatThrownBy(() -> new PersonalData("Jane", "Doe", "555-1234", Gender.FEMALE,
-                identityDocument(), LocalDate.of(1990, 1, 1), null))
+                "123456789", country(), LocalDate.of(1990, 1, 1), null, encryptionService, hashService))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void blankPhone_isNormalizedToNull() {
         PersonalData personalData = new PersonalData("Jane", "Doe", "   ", Gender.FEMALE,
-                identityDocument(), LocalDate.of(1990, 1, 1), user());
+                "123456789", country(), LocalDate.of(1990, 1, 1), user(), encryptionService, hashService);
 
         assertThat(personalData.getPhone()).isNull();
     }
@@ -79,9 +89,8 @@ class PersonalDataTest {
     @Test
     void decryptDocumentNumber_delegatesToIdentityDocument() {
         PersonalData personalData = newPersonalData();
-        EncryptionService encryptionService = mock(EncryptionService.class);
-        when(encryptionService.decrypt("docEncrypted")).thenReturn("987654321");
+        when(encryptionService.decrypt("encrypted")).thenReturn("123456789");
 
-        assertThat(personalData.decryptDocumentNumber(encryptionService)).isEqualTo("987654321");
+        assertThat(personalData.decryptDocumentNumber(encryptionService)).isEqualTo("123456789");
     }
 }

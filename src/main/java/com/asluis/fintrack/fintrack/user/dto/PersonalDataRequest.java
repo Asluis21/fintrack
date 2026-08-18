@@ -9,8 +9,7 @@ public record PersonalDataRequest(
         String surname,
         String phone,
         Gender gender,
-        String documentNumberHash,
-        String documentNumberEncrypted,
+        String documentNumber,
         Long countryId,
         LocalDate birthdate,
         Long userId

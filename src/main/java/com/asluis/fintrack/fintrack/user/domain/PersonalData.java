@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeOptional;
@@ -86,28 +87,36 @@ public class PersonalData extends BaseEntity{
         String surname,
         String phone,
         Gender gender,
-        IdentityDocument identityDocument,
+        String documentNumber,
+        Country country,
         LocalDate birthdate,
-        User user
+        User user,
+        EncryptionService encryptionService,
+        HashService hashService
     ) {
         this.name               = normalizeRequiredText(name, "Name");
         this.surname            = normalizeRequiredText(surname, "Surname");
         this.phone              = normalizeOptional(phone);
         this.gender             = Objects.requireNonNull(gender, "Gender is required");
-        this.identityDocument   = Objects.requireNonNull(identityDocument, "Identity document is required");
+        this.identityDocument   = buildIdentityDocument(documentNumber, country, encryptionService, hashService);
         this.birthdate          = Objects.requireNonNull(birthdate, "Birthdate is required");
         this.user               = Objects.requireNonNull(user, "User is required");
+    }
+
+    private static IdentityDocument buildIdentityDocument(String documentNumber, Country country,
+            EncryptionService encryptionService, HashService hashService) {
+        return new IdentityDocument(documentNumber, country, encryptionService, hashService);
     }
 
     public String decryptDocumentNumber(EncryptionService encryptionService){
         return identityDocument.decryptDocumentNumber(encryptionService);
     }
 
-    protected void changePhone(String phone) {
+    public void changePhone(String phone) {
         this.phone = normalizeOptional(phone);
     }
 
-    protected void changeName(String name, String surname) {
+    public void changeName(String name, String surname) {
         this.name       = normalizeRequiredText(name, "Name");
         this.surname    = normalizeRequiredText(surname, "Surname");
     }
@@ -118,5 +127,9 @@ public class PersonalData extends BaseEntity{
 
     public void changeBirthdate(LocalDate birthdate) {
         this.birthdate  = Objects.requireNonNull(birthdate, "Birthdate is required");
-    } 
+    }
+
+    public void updateIdentityDocument(Country country, String documentNumber, EncryptionService encryptionService, HashService hashService) {
+        this.identityDocument.updateDocumentDetails(country, documentNumber, encryptionService, hashService);
+    }
 }

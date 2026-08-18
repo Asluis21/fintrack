@@ -6,31 +6,36 @@ import org.junit.jupiter.api.Test;
 
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.Role;
 import com.asluis.fintrack.fintrack.user.domain.User;
-import com.asluis.fintrack.fintrack.user.domain.UserEmail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AccountTest {
 
+    private final EncryptionService encryptionService = mock(EncryptionService.class);
+    private final HashService hashService = mock(HashService.class);
+
+    AccountTest() {
+        when(encryptionService.encrypt(anyString())).thenReturn("encrypted");
+        when(hashService.hash(anyString())).thenReturn("hash");
+    }
+
     private User user() {
-        return new User(new UserEmail("encrypted", "hash"), "hashedPassword", Role.USER);
+        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
     }
 
     private Currency currency() {
         return new Currency("US Dollar", "USD", 2);
     }
 
-    private AccountNumber accountNumber() {
-        return new AccountNumber("encrypted", "hash");
-    }
-
     private Account newAccount() {
-        return new Account(user(), currency(), AccountType.CHECKING, accountNumber());
+        return new Account(user(), currency(), AccountType.CHECKING, "000123456789", encryptionService, hashService);
     }
 
     @Test
@@ -43,7 +48,8 @@ class AccountTest {
 
     @Test
     void nullUser_throws() {
-        assertThatThrownBy(() -> new Account(null, currency(), AccountType.CHECKING, accountNumber()))
+        assertThatThrownBy(() -> new Account(null, currency(), AccountType.CHECKING, "000123456789",
+                encryptionService, hashService))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -116,7 +122,6 @@ class AccountTest {
     @Test
     void decryptAccountNumber_delegatesToAccountNumber() {
         Account account = newAccount();
-        EncryptionService encryptionService = mock(EncryptionService.class);
         when(encryptionService.decrypt("encrypted")).thenReturn("000123456789");
 
         assertThat(account.decryptAccountNumber(encryptionService)).isEqualTo("000123456789");

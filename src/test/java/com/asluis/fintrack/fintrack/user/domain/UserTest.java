@@ -3,16 +3,27 @@ package com.asluis.fintrack.fintrack.user.domain;
 import org.junit.jupiter.api.Test;
 
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class UserTest {
 
+    private final EncryptionService encryptionService = mock(EncryptionService.class);
+    private final HashService hashService = mock(HashService.class);
+
+    UserTest() {
+        when(encryptionService.encrypt(anyString())).thenReturn("encrypted");
+        when(hashService.hash(anyString())).thenReturn("hash");
+    }
+
     private User newUser() {
-        return new User(new UserEmail("encrypted", "hash"), "hashedPassword", Role.USER);
+        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
     }
 
     @Test
@@ -24,20 +35,20 @@ class UserTest {
     }
 
     @Test
-    void nullUserEmail_throws() {
-        assertThatThrownBy(() -> new User(null, "hashedPassword", Role.USER))
+    void nullEmail_throws() {
+        assertThatThrownBy(() -> new User(null, "hashedPassword", Role.USER, encryptionService, hashService))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void blankPasswordHash_throws() {
-        assertThatThrownBy(() -> new User(new UserEmail("encrypted", "hash"), "   ", Role.USER))
+        assertThatThrownBy(() -> new User("user@example.com", "   ", Role.USER, encryptionService, hashService))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void nullRole_throws() {
-        assertThatThrownBy(() -> new User(new UserEmail("encrypted", "hash"), "hashedPassword", null))
+        assertThatThrownBy(() -> new User("user@example.com", "hashedPassword", null, encryptionService, hashService))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -52,7 +63,7 @@ class UserTest {
 
     @Test
     void changeToUser_updatesRole() {
-        User user = new User(new UserEmail("encrypted", "hash"), "hashedPassword", Role.ADMIN);
+        User user = new User("user@example.com", "hashedPassword", Role.ADMIN, encryptionService, hashService);
 
         user.changeToUser();
 
@@ -90,10 +101,19 @@ class UserTest {
     @Test
     void decryptEmail_delegatesToUserEmail() {
         User user = newUser();
-        EncryptionService encryptionService = mock(EncryptionService.class);
         when(encryptionService.decrypt("encrypted")).thenReturn("user@example.com");
 
         assertThat(user.decryptEmail(encryptionService)).isEqualTo("user@example.com");
+    }
+
+    @Test
+    void changeEmail_reEncryptsAndReHashesWithNewValue() {
+        User user = newUser();
+
+        user.changeEmail("new@example.com", encryptionService, hashService);
+
+        verify(encryptionService).encrypt("new@example.com");
+        verify(hashService).hash("new@example.com");
     }
 
     @Test

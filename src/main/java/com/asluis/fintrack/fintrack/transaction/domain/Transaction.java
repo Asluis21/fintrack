@@ -163,6 +163,20 @@ public class Transaction extends BaseEntity {
         this.description        = normalizeOptional(description);
     }    
 
+    public void changeStatus(Status newStatus) {
+        newStatus = Objects.requireNonNull(newStatus, "Status must not be null");
+
+        if (this.status == newStatus) {
+            throw new IllegalArgumentException("Transaction is already " + newStatus);
+        }
+
+        this.status = newStatus;
+    }
+
+    public void changeDescription(String description) {
+        this.description = normalizeOptional(description);
+    }
+
     private void validateExchangeRate(Currency sourceCurrency, Currency targetCurrency){
 
         if (sourceCurrency.equals(targetCurrency)) {

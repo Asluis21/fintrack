@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 
@@ -54,25 +55,33 @@ public class User extends BaseEntity{
     @Column(nullable = false, length = 20)
     private Status status = Status.ACTIVE;
 
-    public User(UserEmail userEmail, String passwordHash, Role role) {
-        this.userEmail      = Objects.requireNonNull(userEmail, "User Email is required");
+    public User(String email, String passwordHash, Role role, EncryptionService encryptionService, HashService hashService) {
+        this.userEmail      = buildUserEmail(email, encryptionService, hashService);
         this.passwordHash   = normalizeRequiredText(passwordHash, "Password hash");
         this.role           = Objects.requireNonNull(role, "Role is required");
+    }
+
+    private static UserEmail buildUserEmail(String email, EncryptionService encryptionService, HashService hashService) {
+        return new UserEmail(email, encryptionService, hashService);
     }
 
     public String decryptEmail(EncryptionService encryptionService){
         return userEmail.decryptEmail(encryptionService);
     }
 
-    protected void changePassword(String passwordHash) {
+    public void changeEmail(String email, EncryptionService encryptionService, HashService hashService) {
+        this.userEmail.changeEmail(email, encryptionService, hashService);
+    }
+
+    public void changePassword(String passwordHash) {
         this.passwordHash = normalizeRequiredText(passwordHash, "Password hash");
     }
-    
-    protected void changeToUser() {
+
+    public void changeToUser() {
         this.role = Role.USER;
     }
-    
-    protected void changeToAdmin() {
+
+    public void changeToAdmin() {
         this.role = Role.ADMIN;
     }
 

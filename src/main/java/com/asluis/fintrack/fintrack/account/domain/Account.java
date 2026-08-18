@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.User;
 
 import jakarta.persistence.CheckConstraint;
@@ -93,12 +94,18 @@ public class Account extends BaseEntity{
         length      = 10)
     private Status status = Status.ACTIVE;
 
-    public Account(User user, Currency currency, AccountType accountType, AccountNumber accountNumber) {
-        
+    public Account(User user, Currency currency, AccountType accountType, String accountNumber,
+            EncryptionService encryptionService, HashService hashService) {
+
         this.user           = Objects.requireNonNull(user, "User must not be null");
-        this.accountNumber  = Objects.requireNonNull(accountNumber, "Account number must not be null");
+        this.accountNumber  = buildAccountNumber(accountNumber, encryptionService, hashService);
         this.currency       = Objects.requireNonNull(currency, "Currency must not be null");
         this.accountType    = Objects.requireNonNull(accountType, "Account type must not be null");
+    }
+
+    private static AccountNumber buildAccountNumber(String accountNumber, EncryptionService encryptionService,
+            HashService hashService) {
+        return new AccountNumber(accountNumber, encryptionService, hashService);
     }
 
     protected void deposit(BigDecimal amount) {

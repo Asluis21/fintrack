@@ -2,17 +2,29 @@ package com.asluis.fintrack.fintrack.transaction.domain;
 
 import org.junit.jupiter.api.Test;
 
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.Role;
 import com.asluis.fintrack.fintrack.user.domain.User;
-import com.asluis.fintrack.fintrack.user.domain.UserEmail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class CategoryTest {
 
+    private final EncryptionService encryptionService = mock(EncryptionService.class);
+    private final HashService hashService = mock(HashService.class);
+
+    CategoryTest() {
+        when(encryptionService.encrypt(anyString())).thenReturn("encrypted");
+        when(hashService.hash(anyString())).thenReturn("hash");
+    }
+
     private User user() {
-        return new User(new UserEmail("encrypted", "hash"), "hashedPassword", Role.USER);
+        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
     }
 
     @Test

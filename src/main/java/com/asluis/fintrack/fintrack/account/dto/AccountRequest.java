@@ -6,7 +6,6 @@ public record AccountRequest(
         Long userId,
         Long currencyId,
         AccountType accountType,
-        String accountNumberEncrypted,
-        String accountNumberHash
+        String accountNumber
 ) {
 }

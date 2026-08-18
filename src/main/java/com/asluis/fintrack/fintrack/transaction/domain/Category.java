@@ -91,7 +91,7 @@ public class Category extends BaseEntity{
                 || createdBy.equals(user);
     }
 
-    protected void rename(String name) {
+    public void rename(String name) {
         this.name = normalizeRequiredText(name, "Category name");
     }
 

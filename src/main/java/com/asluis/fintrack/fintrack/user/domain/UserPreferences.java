@@ -61,15 +61,15 @@ public class UserPreferences extends BaseEntity{
         this.user           = Objects.requireNonNull(user, "User is required");
     }
     
-    protected void changeToDarkMode() {
+    public void changeToDarkMode() {
         this.darkMode = true;
     }
-    
-    protected void changeToLightMode() {
+
+    public void changeToLightMode() {
         this.darkMode = false;
     }
 
-    protected void changeLanguageCode(LanguageCode languageCode) {
+    public void changeLanguageCode(LanguageCode languageCode) {
         this.languageCode   = Objects.requireNonNull(languageCode, "Language code is required");
     }
 }
