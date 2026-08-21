@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
-import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.Country;
 import com.asluis.fintrack.fintrack.user.domain.PersonalData;
+import com.asluis.fintrack.fintrack.user.domain.PersonalDataFactory;
 import com.asluis.fintrack.fintrack.user.domain.User;
 import com.asluis.fintrack.fintrack.user.dto.PersonalDataMapper;
 import com.asluis.fintrack.fintrack.user.dto.PersonalDataRequest;
@@ -26,8 +25,7 @@ public class PersonalDataServiceImpl implements PersonalDataService{
     private final PersonalDataRepository personalDataRepository;
     private final CountryRepository countryRepository;
     private final UserRepository userRepository;
-    private final EncryptionService encryptionService;
-    private final HashService hashService;
+    private final PersonalDataFactory personalDataFactory;
 
     @Override
     public PersonalDataResponse create(PersonalDataRequest request) {
@@ -39,7 +37,7 @@ public class PersonalDataServiceImpl implements PersonalDataService{
             .orElseThrow(() -> new EntityNotFoundException(User.class, request.userId()));
 
         PersonalData personalDataEntity = PersonalDataMapper.toEntity(request, foundCountry, user,
-            encryptionService, hashService);
+            personalDataFactory);
 
         return PersonalDataMapper.toResponse(personalDataRepository.save(personalDataEntity));
     }

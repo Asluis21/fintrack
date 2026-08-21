@@ -31,9 +31,13 @@ class PersonalDataTest {
         return new Country("United States", "USA");
     }
 
+    private IdentityDocument identityDocument() {
+        return new IdentityDocument("123456789", country(), encryptionService, hashService);
+    }
+
     private PersonalData newPersonalData() {
-        return new PersonalData("Jane", "Doe", "555-1234", Gender.FEMALE, "123456789", country(),
-                LocalDate.of(1990, 1, 1), user(), encryptionService, hashService);
+        return new PersonalData("Jane", "Doe", "555-1234", Gender.FEMALE,
+                LocalDate.of(1990, 1, 1), identityDocument(), user());
     }
 
     @Test
@@ -48,21 +52,21 @@ class PersonalDataTest {
     @Test
     void nullGender_throws() {
         assertThatThrownBy(() -> new PersonalData("Jane", "Doe", "555-1234", null,
-                "123456789", country(), LocalDate.of(1990, 1, 1), user(), encryptionService, hashService))
+                LocalDate.of(1990, 1, 1), identityDocument(), user()))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void nullUser_throws() {
         assertThatThrownBy(() -> new PersonalData("Jane", "Doe", "555-1234", Gender.FEMALE,
-                "123456789", country(), LocalDate.of(1990, 1, 1), null, encryptionService, hashService))
+                LocalDate.of(1990, 1, 1), identityDocument(), null))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void blankPhone_isNormalizedToNull() {
         PersonalData personalData = new PersonalData("Jane", "Doe", "   ", Gender.FEMALE,
-                "123456789", country(), LocalDate.of(1990, 1, 1), user(), encryptionService, hashService);
+                LocalDate.of(1990, 1, 1), identityDocument(), user());
 
         assertThat(personalData.getPhone()).isNull();
     }

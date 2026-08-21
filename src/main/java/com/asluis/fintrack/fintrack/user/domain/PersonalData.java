@@ -22,6 +22,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -82,30 +83,23 @@ public class PersonalData extends BaseEntity{
     )
     private User user;
 
+    @Builder
     public PersonalData(
         String name,
         String surname,
         String phone,
         Gender gender,
-        String documentNumber,
-        Country country,
         LocalDate birthdate,
-        User user,
-        EncryptionService encryptionService,
-        HashService hashService
+        IdentityDocument identityDocument,
+        User user
     ) {
         this.name               = normalizeRequiredText(name, "Name");
         this.surname            = normalizeRequiredText(surname, "Surname");
         this.phone              = normalizeOptional(phone);
         this.gender             = Objects.requireNonNull(gender, "Gender is required");
-        this.identityDocument   = buildIdentityDocument(documentNumber, country, encryptionService, hashService);
+        this.identityDocument   = Objects.requireNonNull(identityDocument, "Identity Document is required");
         this.birthdate          = Objects.requireNonNull(birthdate, "Birthdate is required");
         this.user               = Objects.requireNonNull(user, "User is required");
-    }
-
-    private static IdentityDocument buildIdentityDocument(String documentNumber, Country country,
-            EncryptionService encryptionService, HashService hashService) {
-        return new IdentityDocument(documentNumber, country, encryptionService, hashService);
     }
 
     public String decryptDocumentNumber(EncryptionService encryptionService){
