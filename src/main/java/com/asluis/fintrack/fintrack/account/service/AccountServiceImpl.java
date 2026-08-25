@@ -5,13 +5,12 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.asluis.fintrack.fintrack.account.domain.Account;
+import com.asluis.fintrack.fintrack.account.domain.AccountFactory;
 import com.asluis.fintrack.fintrack.account.dto.AccountMapper;
 import com.asluis.fintrack.fintrack.account.dto.AccountRequest;
 import com.asluis.fintrack.fintrack.account.dto.AccountResponse;
 import com.asluis.fintrack.fintrack.account.repository.AccountRepository;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
-import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
-import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.shared.repository.CurrencyRepository;
 import com.asluis.fintrack.fintrack.user.domain.User;
@@ -26,8 +25,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
     private final CurrencyRepository currencyRepository;
-    private final EncryptionService encryptionService;
-    private final HashService hashService;
+    private final AccountFactory accountFactory;
 
     @Override
     public AccountResponse create(AccountRequest request) {
@@ -38,7 +36,7 @@ public class AccountServiceImpl implements AccountService {
         Currency currency = currencyRepository.findById(request.currencyId())
             .orElseThrow(() -> new EntityNotFoundException(Currency.class, request.currencyId()));
 
-        Account accountEntity = AccountMapper.toEntity(request, user, currency, encryptionService, hashService);
+        Account accountEntity = AccountMapper.toEntity(request, user, currency, accountFactory);
 
         return AccountMapper.toResponse(accountRepository.save(accountEntity));
     }

@@ -1,9 +1,8 @@
 package com.asluis.fintrack.fintrack.account.dto;
 
 import com.asluis.fintrack.fintrack.account.domain.Account;
+import com.asluis.fintrack.fintrack.account.domain.AccountFactory;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
-import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
-import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.User;
 
 public class AccountMapper {
@@ -11,10 +10,12 @@ public class AccountMapper {
     private AccountMapper() {
     }
 
-    public static Account toEntity(AccountRequest request, User user, Currency currency,
-            EncryptionService encryptionService, HashService hashService) {
-        return new Account(user, currency, request.accountType(), request.accountNumber(),
-                encryptionService, hashService);
+    public static Account toEntity(AccountRequest request, User user, Currency currency, AccountFactory accountFactory) {
+        return accountFactory.builder(request.accountNumber())
+            .user(user)
+            .currency(currency)
+            .accountType(request.accountType())
+            .build();
     }
 
     public static AccountResponse toResponse(Account account) {

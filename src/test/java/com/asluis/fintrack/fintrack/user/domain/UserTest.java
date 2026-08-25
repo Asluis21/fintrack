@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class UserTest {
@@ -22,8 +21,16 @@ class UserTest {
         when(hashService.hash(anyString())).thenReturn("hash");
     }
 
+    private UserEmail userEmail() {
+        return new UserEmail("user@example.com", encryptionService, hashService);
+    }
+
     private User newUser() {
-        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
+        return User.builder()
+                .email(userEmail())
+                .passwordHash("hashedPassword")
+                .role(Role.USER)
+                .build();
     }
 
     @Test
@@ -36,19 +43,19 @@ class UserTest {
 
     @Test
     void nullEmail_throws() {
-        assertThatThrownBy(() -> new User(null, "hashedPassword", Role.USER, encryptionService, hashService))
+        assertThatThrownBy(() -> User.builder().email(null).passwordHash("hashedPassword").role(Role.USER).build())
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void blankPasswordHash_throws() {
-        assertThatThrownBy(() -> new User("user@example.com", "   ", Role.USER, encryptionService, hashService))
+        assertThatThrownBy(() -> User.builder().email(userEmail()).passwordHash("   ").role(Role.USER).build())
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void nullRole_throws() {
-        assertThatThrownBy(() -> new User("user@example.com", "hashedPassword", null, encryptionService, hashService))
+        assertThatThrownBy(() -> User.builder().email(userEmail()).passwordHash("hashedPassword").role(null).build())
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -63,7 +70,11 @@ class UserTest {
 
     @Test
     void changeToUser_updatesRole() {
-        User user = new User("user@example.com", "hashedPassword", Role.ADMIN, encryptionService, hashService);
+        User user = User.builder()
+                .email(userEmail())
+                .passwordHash("hashedPassword")
+                .role(Role.ADMIN)
+                .build();
 
         user.changeToUser();
 
@@ -107,13 +118,22 @@ class UserTest {
     }
 
     @Test
-    void changeEmail_reEncryptsAndReHashesWithNewValue() {
+    void changeEmail_replacesUserEmail() {
+        User user = newUser();
+        UserEmail newEmail = new UserEmail("new@example.com", encryptionService, hashService);
+
+        user.changeEmail(newEmail);
+
+        when(encryptionService.decrypt("encrypted")).thenReturn("new@example.com");
+        assertThat(user.decryptEmail(encryptionService)).isEqualTo("new@example.com");
+    }
+
+    @Test
+    void changeEmail_null_throws() {
         User user = newUser();
 
-        user.changeEmail("new@example.com", encryptionService, hashService);
-
-        verify(encryptionService).encrypt("new@example.com");
-        verify(hashService).hash("new@example.com");
+        assertThatThrownBy(() -> user.changeEmail(null))
+                .isInstanceOf(NullPointerException.class);
     }
 
     @Test

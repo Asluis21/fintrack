@@ -10,6 +10,7 @@ import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.Role;
 import com.asluis.fintrack.fintrack.user.domain.User;
+import com.asluis.fintrack.fintrack.user.domain.UserEmail;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,7 +29,11 @@ class TransactionTest {
     }
 
     private User user() {
-        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
+        return User.builder()
+                .email(new UserEmail("user@example.com", encryptionService, hashService))
+                .passwordHash("hashedPassword")
+                .role(Role.USER)
+                .build();
     }
 
     private Category category() {

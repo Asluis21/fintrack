@@ -64,6 +64,11 @@ public class PersonalDataServiceImpl implements PersonalDataService{
         foundPersonalData.changeName(request.name(), request.surname());
         foundPersonalData.changePhone(request.phone());
 
+        Country foundCountry = countryRepository.findById(request.countryId())
+            .orElseThrow(() -> new EntityNotFoundException(Country.class, request.countryId()));
+
+        personalDataFactory.updateIdentityDocument(foundPersonalData, request.documentNumber(), foundCountry);
+
         return PersonalDataMapper.toResponse(personalDataRepository.save(foundPersonalData));
     }
     

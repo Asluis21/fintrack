@@ -20,4 +20,9 @@ public class PersonalDataFactory {
         return PersonalData.builder()
                 .identityDocument(identityDocument);
     }
+
+    public void updateIdentityDocument(PersonalData personalData, String documentNumber, Country country) {
+        personalData.updateIdentityDocument(country, documentNumber, encryptionService, hashService);
+    }
+
 }

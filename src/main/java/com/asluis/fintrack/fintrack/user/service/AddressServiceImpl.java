@@ -32,8 +32,8 @@ public class AddressServiceImpl implements AddressService{
         Country country = countryRepository.findById(request.countryId())
             .orElseThrow(() -> new EntityNotFoundException(Country.class, request.countryId()));
         
-        User user = userRepository.findById(request.countryId())
-            .orElseThrow(() -> new EntityNotFoundException(User.class, request.countryId()));
+        User user = userRepository.findById(request.userId())
+            .orElseThrow(() -> new EntityNotFoundException(User.class, request.userId()));
 
         Address addressEntity = AddressMapper.toEntity(request, country, user);
 

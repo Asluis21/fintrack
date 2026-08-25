@@ -9,6 +9,7 @@ import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.Role;
 import com.asluis.fintrack.fintrack.user.domain.User;
+import com.asluis.fintrack.fintrack.user.domain.UserEmail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,15 +28,23 @@ class AccountTest {
     }
 
     private User user() {
-        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
+        return User.builder()
+                .email(new UserEmail("user@example.com", encryptionService, hashService))
+                .passwordHash("hashedPassword")
+                .role(Role.USER)
+                .build();
     }
 
     private Currency currency() {
         return new Currency("US Dollar", "USD", 2);
     }
 
+    private AccountNumber accountNumber() {
+        return new AccountNumber("000123456789", encryptionService, hashService);
+    }
+
     private Account newAccount() {
-        return new Account(user(), currency(), AccountType.CHECKING, "000123456789", encryptionService, hashService);
+        return new Account(user(), currency(), AccountType.CHECKING, accountNumber());
     }
 
     @Test
@@ -48,8 +57,7 @@ class AccountTest {
 
     @Test
     void nullUser_throws() {
-        assertThatThrownBy(() -> new Account(null, currency(), AccountType.CHECKING, "000123456789",
-                encryptionService, hashService))
+        assertThatThrownBy(() -> new Account(null, currency(), AccountType.CHECKING, accountNumber()))
                 .isInstanceOf(NullPointerException.class);
     }
 

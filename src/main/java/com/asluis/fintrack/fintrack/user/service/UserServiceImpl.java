@@ -4,11 +4,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
-import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.Role;
 import com.asluis.fintrack.fintrack.user.domain.User;
+import com.asluis.fintrack.fintrack.user.domain.UserFactory;
 import com.asluis.fintrack.fintrack.user.dto.UserMapper;
 import com.asluis.fintrack.fintrack.user.dto.UserRequest;
 import com.asluis.fintrack.fintrack.user.dto.UserResponse;
@@ -21,13 +20,12 @@ import lombok.AllArgsConstructor;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final EncryptionService encryptionService;
-    private final HashService hashService;
+    private final UserFactory userFactory;
 
     @Override
     public UserResponse create(UserRequest request) {
 
-        User userEntity = UserMapper.toEntity(request, encryptionService, hashService);
+        User userEntity = UserMapper.toEntity(request, userFactory);
 
         return UserMapper.toResponse(userRepository.save(userEntity));
     }
@@ -37,8 +35,8 @@ public class UserServiceImpl implements UserService {
 
         User foundUser = findUser(id);
 
-        foundUser.changeEmail(request.email(), encryptionService, hashService);
-        foundUser.changePassword(request.passwordHash());
+        userFactory.changeEmail(foundUser, request.email());
+        foundUser.changePassword(userFactory.hashPassword(request.password()));
 
         if (request.role() == Role.ADMIN) {
             foundUser.changeToAdmin();

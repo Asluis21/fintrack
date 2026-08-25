@@ -6,12 +6,14 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.asluis.fintrack.fintrack.account.domain.Account;
+import com.asluis.fintrack.fintrack.account.domain.AccountNumber;
 import com.asluis.fintrack.fintrack.account.domain.AccountType;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.Role;
 import com.asluis.fintrack.fintrack.user.domain.User;
+import com.asluis.fintrack.fintrack.user.domain.UserEmail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,7 +32,11 @@ class TransactionEntryTest {
     }
 
     private User user() {
-        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
+        return User.builder()
+                .email(new UserEmail("user@example.com", encryptionService, hashService))
+                .passwordHash("hashedPassword")
+                .role(Role.USER)
+                .build();
     }
 
     private Currency usd() {
@@ -42,7 +48,8 @@ class TransactionEntryTest {
     }
 
     private Account account() {
-        return new Account(user(), usd(), AccountType.CHECKING, "000123456789", encryptionService, hashService);
+        AccountNumber accountNumber = new AccountNumber("000123456789", encryptionService, hashService);
+        return new Account(user(), usd(), AccountType.CHECKING, accountNumber);
     }
 
     private Transaction transaction() {

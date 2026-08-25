@@ -4,7 +4,7 @@ import com.asluis.fintrack.fintrack.user.domain.Role;
 
 public record UserRequest(
         String email,
-        String passwordHash,
+        String password,
         Role role
 ) {
 }

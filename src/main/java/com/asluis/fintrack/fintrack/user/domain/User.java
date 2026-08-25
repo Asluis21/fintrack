@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
-import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 
 import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
 
@@ -16,6 +15,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -55,22 +55,19 @@ public class User extends BaseEntity{
     @Column(nullable = false, length = 20)
     private Status status = Status.ACTIVE;
 
-    public User(String email, String passwordHash, Role role, EncryptionService encryptionService, HashService hashService) {
-        this.userEmail      = buildUserEmail(email, encryptionService, hashService);
+    @Builder
+    public User(String passwordHash, Role role, UserEmail email) {
         this.passwordHash   = normalizeRequiredText(passwordHash, "Password hash");
+        this.userEmail      = Objects.requireNonNull(email, "Email is required");
         this.role           = Objects.requireNonNull(role, "Role is required");
     }
-
-    private static UserEmail buildUserEmail(String email, EncryptionService encryptionService, HashService hashService) {
-        return new UserEmail(email, encryptionService, hashService);
-    }
-
+    
     public String decryptEmail(EncryptionService encryptionService){
         return userEmail.decryptEmail(encryptionService);
     }
 
-    public void changeEmail(String email, EncryptionService encryptionService, HashService hashService) {
-        this.userEmail.changeEmail(email, encryptionService, hashService);
+    public void changeEmail(UserEmail userEmail) {
+        this.userEmail = Objects.requireNonNull(userEmail, "Email is required");
     }
 
     public void changePassword(String passwordHash) {

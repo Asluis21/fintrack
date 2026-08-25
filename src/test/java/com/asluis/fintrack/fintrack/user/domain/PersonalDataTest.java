@@ -24,7 +24,11 @@ class PersonalDataTest {
     }
 
     private User user() {
-        return new User("user@example.com", "hashedPassword", Role.USER, encryptionService, hashService);
+        return User.builder()
+                .email(new UserEmail("user@example.com", encryptionService, hashService))
+                .passwordHash("hashedPassword")
+                .role(Role.USER)
+                .build();
     }
 
     private Country country() {

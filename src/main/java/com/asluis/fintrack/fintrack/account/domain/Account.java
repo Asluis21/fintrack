@@ -6,7 +6,6 @@ import java.util.Objects;
 import com.asluis.fintrack.fintrack.common.domain.BaseEntity;
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
-import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.user.domain.User;
 
 import jakarta.persistence.CheckConstraint;
@@ -23,6 +22,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -94,18 +94,13 @@ public class Account extends BaseEntity{
         length      = 10)
     private Status status = Status.ACTIVE;
 
-    public Account(User user, Currency currency, AccountType accountType, String accountNumber,
-            EncryptionService encryptionService, HashService hashService) {
+    @Builder
+    public Account(User user, Currency currency, AccountType accountType, AccountNumber accountNumber) {
 
         this.user           = Objects.requireNonNull(user, "User must not be null");
-        this.accountNumber  = buildAccountNumber(accountNumber, encryptionService, hashService);
+        this.accountNumber  = Objects.requireNonNull(accountNumber, "Account Number must not be null");
         this.currency       = Objects.requireNonNull(currency, "Currency must not be null");
         this.accountType    = Objects.requireNonNull(accountType, "Account type must not be null");
-    }
-
-    private static AccountNumber buildAccountNumber(String accountNumber, EncryptionService encryptionService,
-            HashService hashService) {
-        return new AccountNumber(accountNumber, encryptionService, hashService);
     }
 
     protected void deposit(BigDecimal amount) {
