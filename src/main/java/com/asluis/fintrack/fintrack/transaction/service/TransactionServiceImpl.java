@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.transaction.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
@@ -28,6 +29,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final CategoryRepository categoryRepository;
     private final CurrencyRepository currencyRepository;
 
+    @Transactional
     @Override
     public TransactionResponse create(TransactionRequest request) {
 
@@ -48,6 +50,7 @@ public class TransactionServiceImpl implements TransactionService {
         return TransactionMapper.toResponse(transactionRepository.save(transactionEntity));
     }
 
+    @Transactional
     @Override
     public TransactionResponse update(Long id, TransactionRequest request) {
 
@@ -61,11 +64,13 @@ public class TransactionServiceImpl implements TransactionService {
         return TransactionMapper.toResponse(transactionRepository.save(foundTransaction));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<TransactionResponse> findById(Long id) {
         return transactionRepository.findById(id).map(TransactionMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         transactionRepository.delete(findTransaction(id));

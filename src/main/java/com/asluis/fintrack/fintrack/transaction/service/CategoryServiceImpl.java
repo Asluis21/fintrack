@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.transaction.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.transaction.domain.Category;
@@ -22,6 +23,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public CategoryResponse create(CategoryRequest request) {
 
@@ -37,6 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toResponse(categoryRepository.save(categoryEntity));
     }
 
+    @Transactional
     @Override
     public CategoryResponse update(Long id, CategoryRequest request) {
 
@@ -47,11 +50,13 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toResponse(categoryRepository.save(foundCategory));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<CategoryResponse> findById(Long id) {
         return categoryRepository.findById(id).map(CategoryMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         categoryRepository.delete(findCategory(id));

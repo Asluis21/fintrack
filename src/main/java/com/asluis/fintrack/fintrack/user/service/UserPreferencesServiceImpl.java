@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.user.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.User;
@@ -22,6 +23,7 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
     private final UserPreferencesRepository userPreferencesRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserPreferencesResponse create(UserPreferencesRequest request) {
 
@@ -33,6 +35,7 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
         return UserPreferencesMapper.toResponse(userPreferencesRepository.save(userPreferencesEntity));
     }
 
+    @Transactional
     @Override
     public UserPreferencesResponse update(Long id, UserPreferencesRequest request) {
 
@@ -49,11 +52,13 @@ public class UserPreferencesServiceImpl implements UserPreferencesService {
         return UserPreferencesMapper.toResponse(userPreferencesRepository.save(foundUserPreferences));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<UserPreferencesResponse> findById(Long id) {
         return userPreferencesRepository.findById(id).map(UserPreferencesMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         userPreferencesRepository.delete(findUserPreferences(id));

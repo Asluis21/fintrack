@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.user.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.Country;
@@ -27,6 +28,7 @@ public class PersonalDataServiceImpl implements PersonalDataService{
     private final UserRepository userRepository;
     private final PersonalDataFactory personalDataFactory;
 
+    @Transactional
     @Override
     public PersonalDataResponse create(PersonalDataRequest request) {
 
@@ -42,18 +44,21 @@ public class PersonalDataServiceImpl implements PersonalDataService{
         return PersonalDataMapper.toResponse(personalDataRepository.save(personalDataEntity));
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
-        
+
         personalDataRepository.delete(findPersonalData(id));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<PersonalDataResponse> findById(Long id) {
-        
+
         return personalDataRepository.findById(id).map(PersonalDataMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public PersonalDataResponse update(Long id, PersonalDataRequest request) {
         

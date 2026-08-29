@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.user.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.Role;
@@ -22,6 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserFactory userFactory;
 
+    @Transactional
     @Override
     public UserResponse create(UserRequest request) {
 
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toResponse(userRepository.save(userEntity));
     }
 
+    @Transactional
     @Override
     public UserResponse update(Long id, UserRequest request) {
 
@@ -47,11 +50,13 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toResponse(userRepository.save(foundUser));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<UserResponse> findById(Long id) {
         return userRepository.findById(id).map(UserMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         userRepository.delete(findUser(id));

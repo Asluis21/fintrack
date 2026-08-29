@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.user.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.Address;
@@ -26,6 +27,7 @@ public class AddressServiceImpl implements AddressService{
     private final UserRepository userRepository;
     
 
+    @Transactional
     @Override
     public AddressResponse create(AddressRequest request) {
 
@@ -40,6 +42,7 @@ public class AddressServiceImpl implements AddressService{
         return AddressMapper.toResponse(addressRepository.save(addressEntity));
     }
 
+    @Transactional
     @Override
     public AddressResponse update(Long id, AddressRequest request) {
         
@@ -53,11 +56,13 @@ public class AddressServiceImpl implements AddressService{
         return AddressMapper.toResponse(addressRepository.save(founAddress));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<AddressResponse> findById(Long id) {
         return addressRepository.findById(id).map(AddressMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         

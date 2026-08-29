@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.account.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.account.domain.Account;
 import com.asluis.fintrack.fintrack.account.domain.AccountFactory;
@@ -27,6 +28,7 @@ public class AccountServiceImpl implements AccountService {
     private final CurrencyRepository currencyRepository;
     private final AccountFactory accountFactory;
 
+    @Transactional
     @Override
     public AccountResponse create(AccountRequest request) {
 
@@ -41,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
         return AccountMapper.toResponse(accountRepository.save(accountEntity));
     }
 
+    @Transactional
     @Override
     public AccountResponse update(Long id, AccountRequest request) {
         // Every AccountRequest field is either an immutable attribute/relation (owner,
@@ -51,11 +54,13 @@ public class AccountServiceImpl implements AccountService {
             "Account has no generically updatable fields; use its dedicated business actions instead");
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<AccountResponse> findById(Long id) {
         return accountRepository.findById(id).map(AccountMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         accountRepository.delete(findAccount(id));

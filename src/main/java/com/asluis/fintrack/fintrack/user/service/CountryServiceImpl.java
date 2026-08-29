@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.user.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.exception.EntityNotFoundException;
 import com.asluis.fintrack.fintrack.user.domain.Country;
@@ -19,6 +20,7 @@ public class CountryServiceImpl implements CountryService{
 
     private final CountryRepository countryRepository;
 
+    @Transactional
     @Override
     public CountryResponse create(CountryRequest request) {
         
@@ -26,18 +28,21 @@ public class CountryServiceImpl implements CountryService{
         return CountryMapper.toResponse(countryRepository.save(countryEntity));
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         
         countryRepository.delete(findCountry(id));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<CountryResponse> findById(Long id) {
         
         return countryRepository.findById(id).map(CountryMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public CountryResponse update(Long id, CountryRequest request) {
         

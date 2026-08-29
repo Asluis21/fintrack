@@ -3,6 +3,7 @@ package com.asluis.fintrack.fintrack.shared.service;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.asluis.fintrack.fintrack.shared.domain.Currency;
 import com.asluis.fintrack.fintrack.shared.dto.CurrencyMapper;
@@ -19,6 +20,7 @@ public class CurrencyServiceImpl implements CurrencyService {
 
     private final CurrencyRepository currencyRepository;
 
+    @Transactional
     @Override
     public CurrencyResponse create(CurrencyRequest request) {
 
@@ -27,6 +29,7 @@ public class CurrencyServiceImpl implements CurrencyService {
         return CurrencyMapper.toResponse(currencyRepository.save(currencyEntity));
     }
 
+    @Transactional
     @Override
     public CurrencyResponse update(Long id, CurrencyRequest request) {
         // name/isoCode/decimalPlaces are all `updatable = false` at the column level and
@@ -34,11 +37,13 @@ public class CurrencyServiceImpl implements CurrencyService {
         throw new UnsupportedOperationException("Currency is immutable and cannot be updated");
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<CurrencyResponse> findById(Long id) {
         return currencyRepository.findById(id).map(CurrencyMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         currencyRepository.delete(findCurrency(id));
