@@ -1,11 +1,14 @@
 package com.asluis.fintrack.fintrack.user.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record AddressRequest(
-        String name,
-        String street,
-        String city,
+        @NotBlank String name,
+        @NotBlank String street,
+        @NotBlank String city,
         String postalCode,
-        Long countryId,
-        Long userId
+        @NotNull Long countryId,
+        @NotNull Long userId
 ) {
 }

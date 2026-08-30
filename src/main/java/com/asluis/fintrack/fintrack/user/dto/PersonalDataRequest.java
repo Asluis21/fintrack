@@ -4,14 +4,18 @@ import java.time.LocalDate;
 
 import com.asluis.fintrack.fintrack.user.domain.Gender;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+
 public record PersonalDataRequest(
-        String name,
-        String surname,
+        @NotBlank String name,
+        @NotBlank String surname,
         String phone,
-        Gender gender,
-        String documentNumber,
-        Long countryId,
-        LocalDate birthdate,
-        Long userId
+        @NotNull Gender gender,
+        @NotBlank String documentNumber,
+        @NotNull Long countryId,
+        @NotNull @Past LocalDate birthdate,
+        @NotNull Long userId
 ) {
 }
