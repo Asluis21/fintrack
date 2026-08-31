@@ -1,0 +1,110 @@
+package com.asluis.fintrack.fintrack.transaction.domain;
+
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+
+import org.junit.jupiter.api.Test;
+
+import com.asluis.fintrack.fintrack.account.domain.Account;
+import com.asluis.fintrack.fintrack.account.domain.AccountNumber;
+import com.asluis.fintrack.fintrack.account.domain.AccountType;
+import com.asluis.fintrack.fintrack.shared.domain.Currency;
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
+import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
+import com.asluis.fintrack.fintrack.user.domain.Role;
+import com.asluis.fintrack.fintrack.user.domain.User;
+import com.asluis.fintrack.fintrack.user.domain.UserEmail;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+class TransactionEntryTest {
+
+    private final EncryptionService encryptionService = mock(EncryptionService.class);
+    private final HashService hashService = mock(HashService.class);
+
+    TransactionEntryTest() {
+        when(encryptionService.encrypt(anyString())).thenReturn("encrypted");
+        when(hashService.hash(anyString())).thenReturn("hash");
+    }
+
+    private User user() {
+        return User.builder()
+                .email(new UserEmail("user@example.com", encryptionService, hashService))
+                .passwordHash("hashedPassword")
+                .role(Role.USER)
+                .build();
+    }
+
+    private Currency usd() {
+        return new Currency("US Dollar", "USD", 2);
+    }
+
+    private Category category() {
+        return new Category("Groceries", AccountingType.EXPENSE, CategoryOwnerType.SYSTEM, null);
+    }
+
+    private Account account() {
+        AccountNumber accountNumber = new AccountNumber("000123456789", encryptionService, hashService);
+        return new Account(user(), usd(), AccountType.CHECKING, accountNumber);
+    }
+
+    private Transaction transaction() {
+        Currency usd = usd();
+        return new Transaction("REF-1", "desc", user(), Type.DEPOSIT, Status.PENDING, category(),
+                BigDecimal.ONE, OffsetDateTime.now(), usd, usd);
+    }
+
+    @Test
+    void validEntry_isCreated() {
+        TransactionEntry entry = new TransactionEntry(transaction(), account(), TransactionEntryType.DEBIT,
+                new BigDecimal("100.00"), usd(), "groceries");
+
+        assertThat(entry.getAmount()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(entry.getTransactionEntryType()).isEqualTo(TransactionEntryType.DEBIT);
+    }
+
+    @Test
+    void nullAmount_throwsWithClearMessage_notARawNullPointerFromSignum() {
+        // Regression test: the constructor used to call amount.signum() before
+        // null-checking amount, so a null amount raised a raw NullPointerException
+        // with no useful message. This asserts the fixed ordering: the null-check
+        // (with a descriptive message) now runs first.
+        assertThatThrownBy(() -> new TransactionEntry(transaction(), account(), TransactionEntryType.DEBIT,
+                null, usd(), "groceries"))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessageContaining("Amount");
+    }
+
+    @Test
+    void zeroAmount_throws() {
+        assertThatThrownBy(() -> new TransactionEntry(transaction(), account(), TransactionEntryType.DEBIT,
+                BigDecimal.ZERO, usd(), "groceries"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void negativeAmount_throws() {
+        assertThatThrownBy(() -> new TransactionEntry(transaction(), account(), TransactionEntryType.DEBIT,
+                new BigDecimal("-10"), usd(), "groceries"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void nullTransaction_throws() {
+        assertThatThrownBy(() -> new TransactionEntry(null, account(), TransactionEntryType.DEBIT,
+                new BigDecimal("10"), usd(), "groceries"))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void blankDescription_isNormalizedToNull() {
+        TransactionEntry entry = new TransactionEntry(transaction(), account(), TransactionEntryType.DEBIT,
+                new BigDecimal("10"), usd(), "   ");
+
+        assertThat(entry.getDescription()).isNull();
+    }
+}
