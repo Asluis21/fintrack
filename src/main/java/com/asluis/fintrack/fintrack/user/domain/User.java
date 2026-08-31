@@ -36,9 +36,8 @@ public class User extends BaseEntity{
     @Embedded
     private UserEmail userEmail;
 
-    @Getter(value = AccessLevel.NONE)
     @Column(
-        nullable    = false, 
+        nullable    = false,
         length      = 255
     )
     private String passwordHash;
