@@ -24,4 +24,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    
+    @ExceptionHandler(InvalidJWTException.class)
+    public ResponseEntity<String> handleIllegalArgument(InvalidJWTException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
 }

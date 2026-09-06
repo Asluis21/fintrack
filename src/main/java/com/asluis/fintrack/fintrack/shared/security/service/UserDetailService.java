@@ -1,6 +1,7 @@
 package com.asluis.fintrack.fintrack.shared.security.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -13,20 +14,22 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 @Service
-public class UserDetailService {
+public class UserDetailService implements UserDetailsService{
     
     private UserRepository userRepository;
 
     private HashService hashService;
 
-    public UserDetails loadUserByEmail(String submittedEmail){
-
+    @Override
+    public UserDetails loadUserByUsername(String submittedEmail) throws UsernameNotFoundException {
+        
         String hashEmail = hashService.hash(submittedEmail);
 
-        User user = userRepository.findByUserEmail_EmailLookupHash(hashService.hash(submittedEmail))
+        User user = userRepository.findByUserEmail_EmailLookupHash(hashEmail)
             .orElseThrow(() -> new UsernameNotFoundException(submittedEmail + " is incorrect"));
 
-        return new SecurityUser(user, hashEmail);
+        return new SecurityUser(user, submittedEmail);
     }
 
+    
 }
