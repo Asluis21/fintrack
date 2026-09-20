@@ -2,6 +2,7 @@ package com.asluis.fintrack.fintrack.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,7 +27,12 @@ public class GlobalExceptionHandler {
     }
     
     @ExceptionHandler(InvalidJWTException.class)
-    public ResponseEntity<String> handleIllegalArgument(InvalidJWTException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    public ResponseEntity<String> handleInvalidToken(InvalidJWTException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleInvalidAuthentication(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 }

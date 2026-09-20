@@ -38,5 +38,8 @@ public class SecurityUser implements UserDetails{
         return user.getStatus() == Status.ACTIVE;
     }
 
-        
+    public User getUser() {
+        return user;
+    }
+    
 }
