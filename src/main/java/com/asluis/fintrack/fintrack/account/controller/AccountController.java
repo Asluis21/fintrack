@@ -2,6 +2,8 @@ package com.asluis.fintrack.fintrack.account.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.asluis.fintrack.fintrack.account.dto.AccountRequest;
 import com.asluis.fintrack.fintrack.account.dto.AccountResponse;
 import com.asluis.fintrack.fintrack.account.service.AccountService;
+import com.asluis.fintrack.fintrack.shared.security.domain.JwtPrincipal;
+import com.asluis.fintrack.fintrack.shared.security.domain.SecurityUser;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +48,10 @@ public class AccountController {
 
     // NEXT IMPLEMENTATION
     @GetMapping("/me")
-    public ResponseEntity<AccountResponse> me(){
-        return null;
+    public ResponseEntity<AccountResponse> me(@AuthenticationPrincipal JwtPrincipal principal){
+        return accountService.findById(principal.userId())
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
