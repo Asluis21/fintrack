@@ -8,10 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -24,13 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.asluis.fintrack.fintrack.account.controller.AccountController;
-import com.asluis.fintrack.fintrack.account.domain.AccountType;
-import com.asluis.fintrack.fintrack.account.domain.Status;
-import com.asluis.fintrack.fintrack.account.dto.AccountResponse;
-import com.asluis.fintrack.fintrack.account.service.AccountService;
-import com.asluis.fintrack.fintrack.common.exception.InvalidJWTException;
-import com.asluis.fintrack.fintrack.shared.domain.JWTResponse;
 import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.shared.domain.port.JWTService;
