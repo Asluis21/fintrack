@@ -1,5 +1,9 @@
 package com.asluis.fintrack.fintrack.shared.controller;
 
+import java.time.Duration;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +17,7 @@ import com.asluis.fintrack.fintrack.shared.dto.LoginResponse;
 import com.asluis.fintrack.fintrack.shared.dto.LoginRequest;
 import com.asluis.fintrack.fintrack.shared.security.domain.SecurityUser;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -27,7 +32,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response){
 
         UsernamePasswordAuthenticationToken userVerfied = 
             new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password());
@@ -39,7 +44,17 @@ public class AuthController {
 
         String token = jwtService.generateToken(user.getUser().getId(), user.getUser().getRole());
 
-        return ResponseEntity.ok(new LoginResponse(token));
+        ResponseCookie cookie = ResponseCookie.from("jwt-token", token)
+            .httpOnly(true)
+            .secure(false)
+            .sameSite("Lax")
+            .path("/")
+            .maxAge(Duration.ofHours(1))
+            .build();        
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        
+        return ResponseEntity.ok().build();
     }
 
 }

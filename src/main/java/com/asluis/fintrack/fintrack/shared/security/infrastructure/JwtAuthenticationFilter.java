@@ -16,6 +16,7 @@ import com.asluis.fintrack.fintrack.user.domain.Role;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -29,14 +30,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
-        String header = request.getHeader("Authorization");
+        String token = "";
+        
+        if (request.getCookies() != null) {
+            for(Cookie e : request.getCookies()){
+                
+                if (e.getName().equals("jwt-token")) {
+                    token = e.getValue();
+                }
+            }
+        }
 
-        if(header == null || !header.startsWith("Bearer ")){
+        if (token.isBlank()) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        String token = header.substring(7);
 
         try{
 
