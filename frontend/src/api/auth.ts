@@ -9,9 +9,8 @@ export interface LoginResponse {
     token : string;
 }
 
-export async function login(
-    user: LoginUserRequest
-) : Promise<LoginResponse>{
+export async function login(user: LoginUserRequest) : Promise<void>{
+    
     const response = await apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify(user),
@@ -21,5 +20,4 @@ export async function login(
         throw new Error('Failed authentication');
     }
 
-    return response.json();
 }

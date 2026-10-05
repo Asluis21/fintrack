@@ -10,6 +10,8 @@ import com.asluis.fintrack.fintrack.shared.security.domain.SecurityUser;
 import com.asluis.fintrack.fintrack.user.domain.User;
 import com.asluis.fintrack.fintrack.user.repository.UserRepository;
 
+import static com.asluis.fintrack.fintrack.common.validation.ValidationUtils.normalizeRequiredText;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -23,7 +25,12 @@ public class UserDetailService implements UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String submittedEmail) throws UsernameNotFoundException {
         
-        String hashEmail = hashService.hash(submittedEmail);
+        if (submittedEmail == null || submittedEmail.isBlank()) {
+            throw new UsernameNotFoundException("Email is required");
+        }
+
+        // Normalize the same way UserEmail does on registration, so the lookup hashes match
+        String hashEmail = hashService.hash(normalizeRequiredText(submittedEmail, "Email"));
 
         User user = userRepository.findByUserEmail_EmailLookupHash(hashEmail)
             .orElseThrow(() -> new UsernameNotFoundException(submittedEmail + " is incorrect"));

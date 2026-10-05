@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
+import jakarta.servlet.http.Cookie;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -57,7 +59,7 @@ public class AccountControllerTest {
         when(accountService.findById(1L)).thenReturn(Optional.of(response));
 
         mockMvc.perform(get("/account/me")
-            .header("Authorization", "Bearer valid-token"))
+            .cookie(new Cookie("jwt-token", "valid-token")))
             .andExpect(status().isOk());
     }
 
@@ -65,7 +67,7 @@ public class AccountControllerTest {
     void meWithInvalidTokenisRejected() throws Exception {
         when(jwtService.verifyToken("bad-token")).thenThrow(new InvalidJWTException("Invalid or expired token"));
 
-        mockMvc.perform(get("/account/me").header("Authorization", "Bearer bad-token"))
+        mockMvc.perform(get("/account/me").cookie(new Cookie("jwt-token", "bad-token")))
             .andExpect(status().isForbidden());
     }
     
