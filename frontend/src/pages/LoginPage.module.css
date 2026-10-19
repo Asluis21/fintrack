@@ -1,0 +1,92 @@
+.logInForm{
+    padding: var(--padding-box);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--border-radius-box);
+    width: 350px;
+    text-align: left;
+    background-color: var(--surface);
+}
+
+.emailInput, .passwordInput{
+    display: flex;
+    flex-direction: column;
+    background: none;
+    color: var(--text);
+}
+
+.passwordLabel a{
+    color: var(--accent);
+}
+
+.logInInfo{
+    text-align: left;
+}
+
+.logInInfo p{
+    text-transform: uppercase;
+    font-size: var(--font-size-hint);
+    letter-spacing: var(--letter-spacing-format);
+}
+
+.logInInfo h1{
+    font-size: var(--font-size-title-h1);
+    max-width: 370px;
+    margin: 25px 0;
+}
+
+.info{
+    display: flex;
+    gap: var(--gap-items);
+}
+
+.infoIcon{
+    background-color: var(--accent-bg);
+    padding: var(--icon-box-padding);
+    border-radius: var(--icon-box-border);
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.infoDescription{
+    display: flex;
+    flex-direction: column;
+}
+
+.info small{
+    font-size: var(--font-size-hint);
+}
+
+.info strong{
+    font-size: var(--font-size-text);
+}
+
+.divider{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.divider::before,
+.divider::after{
+    content: "";
+    flex: 1;
+    border: 1px solid var(--accent-border);
+}
+
+.divider span{
+    margin: 0 10px;
+}
+
+.signUp{
+    text-align: center;
+}
+
+.signUp a{
+    color: var(--accent);
+}
+
+
+
+

@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.asluis.fintrack.fintrack.shared.domain.port.JWTService;
 import com.asluis.fintrack.fintrack.shared.dto.LoginResponse;
 import com.asluis.fintrack.fintrack.shared.dto.LoginRequest;
+import com.asluis.fintrack.fintrack.shared.dto.MeResponse;
 import com.asluis.fintrack.fintrack.shared.dto.RegisterRequest;
+import com.asluis.fintrack.fintrack.shared.security.domain.JwtPrincipal;
 import com.asluis.fintrack.fintrack.shared.security.domain.SecurityUser;
 import com.asluis.fintrack.fintrack.user.domain.User;
 import com.asluis.fintrack.fintrack.user.dto.UserMapper;
@@ -66,6 +70,19 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toResponse(user));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<MeResponse> me(@AuthenticationPrincipal JwtPrincipal principal){
+        return ResponseEntity.ok(new MeResponse(userService.findUsername(principal.userId())));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response){
+
+        removeCookie(response);
+
+        return ResponseEntity.noContent().build();
+    }
+
     private void addJwtCookie(HttpServletResponse response, User user){
 
         String token = jwtService.generateToken(user.getId(), user.getRole());
@@ -81,4 +98,11 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
+        private void removeCookie(HttpServletResponse response){
+            ResponseCookie cookie = ResponseCookie.from("jwt-token", "")
+                .maxAge(0)
+                .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
 }

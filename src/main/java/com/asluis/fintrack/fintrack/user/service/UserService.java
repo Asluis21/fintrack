@@ -18,4 +18,8 @@ public interface UserService {
     Optional<UserResponse> findById(Long id);
 
     void deleteById(Long id);
+
+    String findEmailById(Long id);
+
+    String findUsername(Long id);
 }

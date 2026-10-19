@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.asluis.fintrack.fintrack.shared.domain.port.EncryptionService;
 import com.asluis.fintrack.fintrack.shared.domain.port.HashService;
 import com.asluis.fintrack.fintrack.shared.dto.RegisterRequest;
 import com.asluis.fintrack.fintrack.shared.exception.EmailAlreadyRegisteredException;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserFactory userFactory;
     private final HashService hashService;
+    private final EncryptionService encryptionService;
 
     @Transactional
     @Override
@@ -86,8 +88,20 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(findUser(id));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public String findEmailById(Long id) {
+        return findUser(id).decryptEmail(encryptionService);
+    }
+
     private User findUser(Long id) {
         return userRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(User.class, id));
+    }
+
+    @Override 
+    public String findUsername(Long id){
+
+        return findEmailById(id).split("@", 2)[0];
     }
 }
