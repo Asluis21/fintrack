@@ -3,7 +3,40 @@ import styles from './Navbar.module.css';
 
 export function Navbar () {
 
-    const {user} = useAuth();
+    const {user, isLoading, logout} = useAuth();
+
+    async function handleLogout() {
+        try{
+            await logout();
+        } catch (err){
+            console.log(err);
+        }
+    }
+
+    let authArea : React.ReactNode;
+
+    if(isLoading){
+        authArea = null;
+    } else if (user) {
+
+        authArea = (
+            <div className="d-flex align-items-center gap-3">
+                <span>{user.username}</span>
+                <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleLogout}>
+                    Log out
+                </button>
+            </div>
+        );
+
+    } else {
+
+        authArea = (
+            <div className={`d-flex ${styles.btnAccess} align-items-center gap-3`}>
+                <a href="#" className="text-decoration-none">New to FinTrack?</a>
+                <button className={`btn ${styles.btnCreateAccount}`}>Create an account</button>
+            </div>
+        )
+    }
 
     return (
         <nav className={`navbar navbar-expand-lg d-flex justify-content-between`}>            
@@ -31,17 +64,7 @@ export function Navbar () {
                     <a href="#" className="text-decoration-none option-4">Help</a>
                 </div>
 
-                
-
-                {!user ? (
-                    <div className={`d-flex ${styles.btnAccess} align-items-center gap-3`}>
-                        <a href="#" className="text-decoration-none">New to FinTrack?</a>
-                        <button className={`btn ${styles.btnCreateAccount}`}>Create an account</button>
-                    </div>
-                ) : (
-
-                    <a href="#">Log out</a>
-                )}
+                {authArea}
             </div>
         </nav>
     )

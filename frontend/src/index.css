@@ -182,6 +182,8 @@ code {
   background: var(--accent) !important;        /* light #1f6f54 · dark #5cc49a */
   color: var(--on-accent) !important;          /* light #ffffff · dark #0e1412 */
   border: none !important;
+  width: 100% !important;
+  margin: 20px 0 !important;
 }
 
 .btn.btn-success:hover {
