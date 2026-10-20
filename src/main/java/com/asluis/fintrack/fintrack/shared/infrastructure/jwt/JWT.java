@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.stereotype.Service;
 
 import com.asluis.fintrack.fintrack.common.exception.InvalidJWTException;
@@ -19,13 +21,27 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JWT implements JWTService{
 
-    private String secretKey;
-    private int expirationMinutes;
+    private final SecretKey secretKey;
+    private final int expirationMinutes;
     
 
     public JWT(JWTProperties jwtProperties) {
 
-        this.secretKey = jwtProperties.secretKey();
+        if (jwtProperties.secretKey() == null || jwtProperties.secretKey().isBlank()) {
+            throw new IllegalStateException("jwt.data.secret-key is not configured");
+        }
+
+        if (jwtProperties.expirationMinutes() <= 0) {
+            throw new IllegalStateException("jwt.data.expiration-minutes must be greater than 0");
+        }
+
+        try {
+            // hmacShaKeyFor rejects keys shorter than 256 bits
+            this.secretKey = Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtProperties.secretKey()));
+        } catch (IllegalArgumentException | JwtException ex) {
+            throw new IllegalStateException("Invalid JWT configuration", ex);
+        }
+
         this.expirationMinutes = jwtProperties.expirationMinutes();
     }
 
@@ -37,7 +53,7 @@ public class JWT implements JWTService{
             .claim("role", role.name())
             .issuedAt(new Date())
             .expiration(new Date(new Date().getTime() + Duration.ofMinutes(expirationMinutes).toMillis()))
-            .signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey)))
+            .signWith(secretKey)
             .compact();
     }
 
@@ -46,7 +62,7 @@ public class JWT implements JWTService{
 
         try{
             Claims claims = Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey)))
+            .verifyWith(secretKey)
             .build()
             .parseSignedClaims(token)
             .getPayload();
