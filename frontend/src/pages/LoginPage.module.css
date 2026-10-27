@@ -45,7 +45,18 @@
     justify-content: center;
     align-items: center;
     display: flex;
+    flex-direction: column;
 }
+
+@media (min-width: 576px) { 
+    
+    .infoIcon{
+        flex-direction: row;
+    }
+ }
+
+
+
 
 .infoDescription{
     display: flex;

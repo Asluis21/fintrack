@@ -1,5 +1,6 @@
 import { useAuth } from '../auth/AuthContext';
 import styles from './Navbar.module.css';
+import { Navbar as BsNavbar, Nav, Container } from 'react-bootstrap';
 
 export function Navbar () {
 
@@ -31,17 +32,17 @@ export function Navbar () {
     } else {
 
         authArea = (
-            <div className={`d-flex ${styles.btnAccess} align-items-center gap-3`}>
-                <a href="#" className="text-decoration-none">New to FinTrack?</a>
-                <button className={`btn ${styles.btnCreateAccount}`}>Create an account</button>
+            <div className={`d-flex ${styles.btnAccess, styles.authArea} align-items-center gap-3 `}>
+                <a href="#" className="text-decoration-none d-none d-xl-inline">New to FinTrack?</a>
+                <button className={`btn ${styles.btnCreateAccount} my-3 my-md-0`}>Create an account</button>
             </div>
         )
     }
 
     return (
-        <nav className={`navbar navbar-expand-lg d-flex justify-content-between`}>            
-
-            <div className="container">
+        <BsNavbar expand="lg" collapseOnSelect>
+              
+            <div className="container-fluid px-5" style={{background: 'var(--navbar)'}}>
 
                 <div className={styles.pageLogo}>
                     <div className="image">
@@ -56,16 +57,25 @@ export function Navbar () {
                     </div>
                 </div>
 
+                {/* md and below only: CTA always visible */}
+                {!isLoading && !user && (
+                    <button className={`btn btn-sm ${styles.btnCreateAccount} d-none d-md-inline-block d-lg-none ms-auto me-2`}>
+                        Sign up
+                    </button>
+                )}
 
-                <div className={`${styles.featureOptions} gap-5 d-flex`}>
-                    <a href="#" className="text-decoration-none option-1">Features</a>
-                    <a href="#" className="text-decoration-none option-2">Pricing</a>
-                    <a href="#" className="text-decoration-none option-3">Security</a>
-                    <a href="#" className="text-decoration-none option-4">Help</a>
-                </div>
+                <BsNavbar.Toggle aria-controls="main-nav" style={{background: 'var(--accent)'}}/>
 
-                {authArea}
+                <BsNavbar.Collapse id="main-nav">
+                    <Nav className="mx-auto gap-lg-4">
+                        <Nav.Link href="#features">Features</Nav.Link>
+                        <Nav.Link href="#pricing">Pricing</Nav.Link>
+                        <Nav.Link href="#security">Security</Nav.Link>
+                        <Nav.Link href="#help">Help</Nav.Link>
+                    </Nav>
+                    {authArea}
+                </BsNavbar.Collapse>
             </div>
-        </nav>
+        </BsNavbar>
     )
 }

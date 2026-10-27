@@ -47,7 +47,7 @@ export function LoginPage (){
                             <small className="subtitle">Log in to see your account, budgets and spending</small>
                         </div>
                         
-                        <div className={`${style.emailInput}`}>
+                        <div className={`${style.emailInput} my-3`}>
                             <label className="form-label" htmlFor="email">Email</label>
                             <input 
                                 className="form-control"
@@ -64,9 +64,9 @@ export function LoginPage (){
                                 disabled={loading}/>
                         </div>
 
-                        <div className={`${style.passwordInput}`}>
+                        <div className={`${style.passwordInput} my-3`}>
 
-                            <div className={`${style.passwordLabel} d-flex justify-content-between`}>
+                            <div className={`${style.passwordLabel}  d-flex justify-content-between`}>
                                 <label className="form-label" htmlFor="password">Password</label>
                                 <a href="#">Forgot password?</a>
                             </div>
@@ -84,7 +84,7 @@ export function LoginPage (){
                                 required/>
                         </div>
 
-                        <div className={`${style.keepSignInInput} d-flex gap-2`}>
+                        <div className={`my-3 d-flex gap-2`}>
                             <input type="checkbox" id="keep-sign-in" name="keep-sign-in"/>
                             <label htmlFor="keep-sign-in">Keep me signed in on this device</label>
                         </div>
@@ -111,12 +111,12 @@ export function LoginPage (){
                     <p>Personal Finance, made clear</p>
                     
 
-                    <div className="logInInfoText d-flex flex-lg-column gap-5 gap-lg-0">                        
+                    <div className="logInInfoText d-flex flex-column flex-md-row flex-lg-column gap-2 gap-md-5 gap-lg-0">                        
                         <h1 className="logInInfoMainTitle">
                             Every account, budget and goal in one calm view.
                         </h1>
                     
-                        <div className={`${style.logInInfoItemGroup} d-flex flex-column gap-3 justify-content-center`}>
+                        <div className={`d-flex flex-md-column gap-3 justify-content-center`}>
 
                             <div className={style.info}>
 
